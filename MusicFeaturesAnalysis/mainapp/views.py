@@ -3,12 +3,12 @@ from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
 from .forms import UserRegisterForm, UserLoginForm
+from .models import Song
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the index.")
+    return render(request, "base.html")
 
 
 def user_login(request):
@@ -39,3 +39,7 @@ def signin(request):
 def user_logout(request):
     logout(request)
     return redirect('')
+
+def profile(request):
+    user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
+    return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs})
