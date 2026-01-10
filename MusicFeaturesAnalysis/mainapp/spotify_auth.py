@@ -8,5 +8,6 @@ def get_spotify_oauth():
         client_secret=settings.SPOTIFY_CLIENT_SECRET,
         redirect_uri=settings.SPOTIFY_REDIRECT_URI,
         scope=settings.SPOTIFY_SCOPES,
-        cache_handler=None
+        cache_handler=None,
+        show_dialog=True
     )

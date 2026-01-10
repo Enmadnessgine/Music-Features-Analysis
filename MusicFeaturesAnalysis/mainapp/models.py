@@ -41,8 +41,8 @@ class Features(models.Model):
 
 class SpotifyToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=300)
-    refresh_token = models.CharField(max_length=300)
+    access_token = models.TextField()
+    refresh_token = models.TextField()
     expires_at = models.DateTimeField()
 
     def is_expired(self):

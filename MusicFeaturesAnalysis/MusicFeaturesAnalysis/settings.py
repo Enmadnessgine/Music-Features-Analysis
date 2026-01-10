@@ -25,7 +25,13 @@ SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI')
 
-SPOTIFY_SCOPES = "user-top-read"
+SPOTIFY_SCOPES = [
+    "user-read-email",
+    "user-read-private",
+    "user-top-read",
+    "playlist-modify-public",
+    "playlist-modify-private",
+]
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')

@@ -8,10 +8,11 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 
-from .services.spotify_api.service import get_spotify_client
+from .spotify_auth import get_spotify_oauth
+from .services.spotify_api.service import get_spotify_client, get_user_top_tracks
 from .forms import UserRegisterForm, UserLoginForm
 from .models import Song, SpotifyToken
-from .spotify_auth import get_spotify_oauth
+
 
 
 def index(request):
@@ -51,7 +52,9 @@ def user_logout(request):
 
 def profile(request):
     user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
-    return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs})
+    tracks = get_user_top_tracks(request.user, limit=50)
+    print(tracks)
+    return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks})
 
 
 #SPOTIFY_API
@@ -81,22 +84,10 @@ def spotify_callback(request):
 
     return redirect("profile")
 
-
+"""""
 @login_required
 def top_tracks(request):
-    sp = get_spotify_client(request.user)
-    results = sp.current_user_top_tracks(
-        limit=20,
-        time_range="medium_term"
-    )
-
-    tracks = [
-        {
-            "name": track["name"],
-            "artist": track["artists"][0]["name"],
-            "image": track["album"]["images"][0]["url"]
-        }
-        for track in results["items"]
-    ]
-    return redirect("profile")
-
+    tracks = get_user_top_tracks(request.user, limit=50)
+    print(tracks)
+    return render(request, "mainapp/profile.html", {"tracks": tracks})
+"""""
