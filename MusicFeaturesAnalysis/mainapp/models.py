@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
-# Create your models here.
+
 class AudioFile(models.Model):
     file = models.FileField(upload_to="audio/")
     file_hash = models.CharField(max_length=64, unique=True)
@@ -36,3 +37,13 @@ class Features(models.Model):
     speechiness = models.FloatField()
     tempo = models.FloatField()
     valence = models.FloatField()
+
+
+class SpotifyToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    access_token = models.CharField(max_length=300)
+    refresh_token = models.CharField(max_length=300)
+    expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at

@@ -33,6 +33,7 @@ class ReccoService:
 		except requests.exceptions.RequestException as e:
 			raise ReccoAPIError(f"Recco API error: {e}") from e
 		
+
 	def extract_from_audio(self, file_path: str):
 		with open(file_path, "rb") as f:
 			files = {"audioFile": ('file', f, 'application/octet-stream')}
@@ -41,6 +42,7 @@ class ReccoService:
 				"analysis/audio-features",
 				files=files
 				)
+			
 			
 	def get_info_by_id(self, song_id: str):
 		endpoint = f"track/{song_id}"

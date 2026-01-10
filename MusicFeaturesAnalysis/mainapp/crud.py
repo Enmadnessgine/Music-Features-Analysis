@@ -5,6 +5,7 @@ from django.db import transaction
 import os
 from hashlib import sha256
 
+
 def file_hash(uploaded_file) -> str:
 	hasher = sha256()
 	for chunk in uploaded_file.chunks():
@@ -42,8 +43,10 @@ def create_song_f(user: User, file, title: str = "", artist: str = ""):
 
 	return song
 	
+
 def get_user_songs(user: User):
 	return Song.objects.filter(user=user).select_related('audio', 'audio__features')
+
 
 def delete_user_song(user: User, song_id: int):
 	try:

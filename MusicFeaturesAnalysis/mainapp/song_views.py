@@ -4,6 +4,7 @@ from .models import Song
 from .crud import create_song_f
 from .forms import AudioUploadForm
 
+
 def analize_audio(request):
     if request.method == "POST":
         upload_file = request.FILES.get('fileToUpload')
