@@ -44,6 +44,42 @@ def create_song_f(user: User, file, title: str = "", artist: str = ""):
 	return song
 	
 
+@transaction.atomic
+def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
+    recco = ReccoService()
+
+    for track in top_tracks:
+        spotify_id = track["spotify_id"]
+
+        try:
+            features_data = recco.get_info_by_id(spotify_id)
+        except Exception:
+            continue #if track doesnt exist
+
+        Song.objects.get_or_create(
+            user=user,
+            defaults={
+                "track_id": spotify_id,
+                "title": track["name"],
+                "artist": track["artist"],
+            }
+        )
+
+        Features.objects.update_or_create(
+            defaults={
+                "acousticness": features_data["acousticness"],
+                "danceability": features_data["danceability"],
+                "energy": features_data["energy"],
+                "instrumentalness": features_data["instrumentalness"],
+                "liveness": features_data["liveness"],
+                "loudness": features_data["loudness"],
+                "speechiness": features_data["speechiness"],
+                "tempo": features_data["tempo"],
+                "valence": features_data["valence"],
+            }
+        )
+
+
 def get_user_songs(user: User):
 	return Song.objects.filter(user=user).select_related('audio', 'audio__features')
 
@@ -55,3 +91,6 @@ def delete_user_song(user: User, song_id: int):
 		return True
 	except Song.DoesNotExist:
 		return False
+
+
+			

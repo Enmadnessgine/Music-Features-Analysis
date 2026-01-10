@@ -12,6 +12,7 @@ from .spotify_auth import get_spotify_oauth
 from .services.spotify_api.service import get_spotify_client, get_user_top_tracks
 from .forms import UserRegisterForm, UserLoginForm
 from .models import Song, SpotifyToken
+from .crud import save_top_tracks_with_features
 
 
 
@@ -52,8 +53,9 @@ def user_logout(request):
 
 def profile(request):
     user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
-    tracks = get_user_top_tracks(request.user, limit=50)
+    tracks = get_user_top_tracks(request.user, limit=3)
     print(tracks)
+    save_top_tracks_with_features(request.user, tracks)
     return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks})
 
 
@@ -84,10 +86,3 @@ def spotify_callback(request):
 
     return redirect("profile")
 
-"""""
-@login_required
-def top_tracks(request):
-    tracks = get_user_top_tracks(request.user, limit=50)
-    print(tracks)
-    return render(request, "mainapp/profile.html", {"tracks": tracks})
-"""""
