@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from mainapp.models import SpotifyToken
 from mainapp.spotify_auth import get_spotify_oauth
-
+import requests
 
 def get_spotify_client(user):
     token = SpotifyToken.objects.get(user=user)
