@@ -38,7 +38,22 @@ class Features(models.Model):
     tempo = models.FloatField()
     valence = models.FloatField()
 
-
+class SearchInfo(models.Model):
+    spotify_id = models.CharField(max_length=22)
+    reccobeats_id = models.CharField(max_length=128)
+    link = models.CharField(max_length=400)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searches")
+    
+    acousticness = models.FloatField()
+    danceability = models.FloatField()
+    energy = models.FloatField()
+    instrumentalness = models.FloatField()
+    liveness = models.FloatField()
+    loudness = models.FloatField()
+    speechiness = models.FloatField()
+    tempo = models.FloatField()
+    valence = models.FloatField()
+    
 class SpotifyToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     access_token = models.TextField()

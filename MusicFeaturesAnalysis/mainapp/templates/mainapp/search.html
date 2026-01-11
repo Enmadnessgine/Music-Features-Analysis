@@ -1,0 +1,26 @@
+{% extends 'base.html' %} {% block content %}
+<div class="bg-light border rounded m-1 p-3">
+  {% if data %}
+  <h3>Search Results:</h3>
+  <ul>
+    <li><strong>Spotify ID:</strong> {{ data.spotify_id }}</li>
+    <li><strong>ReccoBeat ID:</strong> {{ data.reccobeats_id }}</li>
+    <li>
+      <strong>Link:</strong>
+      <a href="{{ data.link }}" target="_blank">{{ data.link }}</a>
+    </li>
+    <li><strong>Acousticness:</strong> {{ data.acousticness }}</li>
+    <li><strong>Danceability:</strong> {{ data.danceability }}</li>
+    <li><strong>Energy:</strong> {{ data.energy }}</li>
+    <li><strong>Instrumentalness:</strong> {{ data.instrumentalness }}</li>
+    <li><strong>Liveness:</strong> {{ data.liveness }}</li>
+    <li><strong>Loudness:</strong> {{ data.loudness }}</li>
+    <li><strong>Speechiness:</strong> {{ data.speechiness }}</li>
+    <li><strong>Tempo:</strong> {{ data.tempo }}</li>
+    <li><strong>Valence:</strong> {{ data.valence }}</li>
+  </ul>
+  {% elif error  %}
+    <h3>{{ error }}</h3>
+  {% endif %}
+</div>
+{% endblock %}

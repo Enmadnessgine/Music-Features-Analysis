@@ -10,6 +10,7 @@ urlpatterns = [
     path('logout/', views.user_logout, name = 'logout'),
     path("profile/", views.profile, name="profile"),
     path("upload/", song_views.analize_audio, name="upload_audio"),
+    path("search/", song_views.load_search, name="search"),
     
     path("login/spotify/", views.spotify_login, name="spotify_login"),
     path("callback/spotify/", views.spotify_callback, name="spotify_callback"),
