@@ -1,10 +1,11 @@
-from .models import AudioFile, Song, Features
 from mainapp.services.reccobeatsapi.service import ReccoService, ReccoAPIError
 from django.contrib.auth.models import User
 from django.db import transaction
 import os
 from hashlib import sha256
 
+from .models import AudioFile, Song, Features
+from .utils import get_info, get_features
 
 def file_hash(uploaded_file) -> str:
 	hasher = sha256()
@@ -46,18 +47,28 @@ def create_song_f(user: User, file, title: str = "", artist: str = ""):
 
 @transaction.atomic
 def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
-    recco = ReccoService()
-
     for track in top_tracks:
         spotify_id = track["spotify_id"]
 
+        reccobeats_id = get_info(spotify_id)
+        if not reccobeats_id:
+            print("No ReccoBeats match:", spotify_id)
+            continue
+
         try:
-            features_data = recco.get_info_by_id(spotify_id)
-        except Exception:
-            continue #if track doesnt exist
+            features_data = get_features(reccobeats_id)
+        except Exception as e:
+            print("Features error:", e)
+            continue
+
+        audio, _ = AudioFile.objects.get_or_create(
+            file_hash=f"spotify:{spotify_id}",
+            defaults={"file": None, "size": 0}
+        )
 
         Song.objects.get_or_create(
             user=user,
+            audio=audio,
             defaults={
                 "track_id": spotify_id,
                 "title": track["name"],
@@ -66,6 +77,7 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
         )
 
         Features.objects.update_or_create(
+            audio=audio,
             defaults={
                 "acousticness": features_data["acousticness"],
                 "danceability": features_data["danceability"],
@@ -78,6 +90,8 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
                 "valence": features_data["valence"],
             }
         )
+
+        print(f"Saved: {track['name']}")
 
 
 def get_user_songs(user: User):

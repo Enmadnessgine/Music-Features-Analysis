@@ -1,22 +1,22 @@
 import requests
-from services.spotify_api.service import get_user_top_tracks
+from .services.spotify_api.service import get_user_top_tracks
 
-def get_info(id):
-	params = {"ids": f"GET /track?ids={id}"}
-	r = requests.get(f"https://api.reccobeats.com/v1/track?ids={id}")
-	try:
-		data = r.json()
-		if data['content']:
-			return data
-		else:
-			return data
-	except Exception as e:
-		raise e
+
+def get_info(spotify_id: str) -> str | None:
+    r = requests.get(f"https://api.reccobeats.com/v1/track?ids={spotify_id}")
+    r.raise_for_status()
+
+    data = r.json()
+    if not data.get("content"):
+        return None
+
+    return data["content"][0]["id"]
 	
 def get_features(id):
 	res = requests.get(f"https://api.reccobeats.com/v1/track/{id}/audio-features")
 	if res.status_code == 200:
 		json_obj = res.json()
+		print(json_obj)
 		return json_obj
 	else:
 		raise ConnectionError("Try later")
