@@ -1,3 +1,4 @@
+import token
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth import login, logout
@@ -53,36 +54,41 @@ def user_logout(request):
 
 def profile(request):
     user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
-    tracks = get_user_top_tracks(request.user, limit=15)
-    print(tracks)
-    save_top_tracks_with_features(request.user, tracks)
+    tracks = get_user_top_tracks(request.user, limit=3)
+    #save_top_tracks_with_features(request.user, tracks)
     return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks})
 
 
 #SPOTIFY_API
+@login_required
 def spotify_login(request):
+    SpotifyToken.objects.filter(user=request.user).delete()
+
     sp_oauth = get_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
+    return redirect(sp_oauth.get_authorize_url())
 
 @csrf_exempt
 @login_required
 def spotify_callback(request):
     code = request.GET.get("code")
     if not code:
-        return HttpResponseBadRequest("No code")
+        return redirect("profile")
 
     sp_oauth = get_spotify_oauth()
     token_info = sp_oauth.get_access_token(code)
+
+    expires_at = timezone.now() + timedelta(
+        seconds=token_info["expires_in"]
+    )
 
     SpotifyToken.objects.update_or_create(
         user=request.user,
         defaults={
             "access_token": token_info["access_token"],
-            "refresh_token": token_info.get("refresh_token", ""),
-            "expires_at": timezone.now() + timedelta(seconds=token_info["expires_in"]),
+            "refresh_token": token_info.get("refresh_token"),
+            "expires_at": expires_at,
         }
     )
-
+    print(token_info)
     return redirect("profile")
 
