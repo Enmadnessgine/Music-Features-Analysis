@@ -41,12 +41,10 @@ def get_spotify_client(user):
 
 
 def get_user_top_tracks(user, limit=20, time_range="medium_term"):
-    """
-    time_range:
+    """time_range: 
     - short_term (4 weeks)
     - medium_term (6 months)
-    - long_term (years)
-    """
+    - long_term (years)"""
 
     sp = get_spotify_client(user)
 
@@ -57,7 +55,8 @@ def get_user_top_tracks(user, limit=20, time_range="medium_term"):
 
     results = sp.current_user_top_tracks(
         limit=limit,
-        time_range=time_range
+        time_range=time_range,
+        offset = 0,
     )
     print(results)
     return [

@@ -54,8 +54,8 @@ def user_logout(request):
 
 def profile(request):
     user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
-    tracks = get_user_top_tracks(request.user, limit=3)
-    #save_top_tracks_with_features(request.user, tracks)
+    tracks = get_user_top_tracks(request.user, limit=7)
+    save_top_tracks_with_features(request.user, tracks)
     return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks})
 
 

@@ -1,6 +1,10 @@
 import requests
 from typing import Optional, Dict, Any
 from urllib.parse import urljoin
+from pathlib import Path
+
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+ALLOWED_EXTENSIONS = {".mp3", ".wav"}
 
 class ReccoAPIError(Exception):
 	pass
@@ -40,14 +44,32 @@ class ReccoService:
 			"GET",
 			endpoint=endpoint,
 		)
-	
 
 	def extract_from_audio(self, file_path: str):
-		with open(file_path, "rb") as f:
-			files = {"audioFile": ('file', f, 'application/octet-stream')}
+		path = Path(file_path)
+
+		if not path.exists():
+			raise FileNotFoundError(f"File not found: {file_path}")
+
+		if path.suffix.lower() not in ALLOWED_EXTENSIONS:
+			raise ValueError(
+				f"Unsupported file format: {path.suffix}. "
+				f"Allowed formats: {', '.join(ALLOWED_EXTENSIONS)}"
+			)
+
+		if path.stat().st_size > MAX_FILE_SIZE:
+			raise ValueError(
+				"File size exceeds 5 MB limit"
+			)
+
+		with open(path, "rb") as f:
+			files = {
+				"audioFile": ("file", f, "application/octet-stream")
+			}
 			return self._request(
-				"POST", 
+				"POST",
 				"analysis/audio-features",
 				files=files
-				)
+			)
+
 		
