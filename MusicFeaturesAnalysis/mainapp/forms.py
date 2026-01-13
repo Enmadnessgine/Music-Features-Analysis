@@ -21,3 +21,5 @@ class UserLoginForm(AuthenticationForm):
     
 class AudioUploadForm(forms.Form):
     fileToUpload = forms.FileField(label="Select audio file")
+    title = forms.CharField(label='Title', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Title'}))
+    artist = forms.CharField(label='Artist', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Artist'}))

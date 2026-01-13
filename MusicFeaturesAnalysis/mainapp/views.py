@@ -11,7 +11,7 @@ from datetime import timedelta
 
 from .spotify_auth import get_spotify_oauth
 from .services.spotify_api.service import get_spotify_client, get_user_top_tracks
-from .forms import UserRegisterForm, UserLoginForm
+from .forms import UserRegisterForm, UserLoginForm, AudioUploadForm
 from .models import Song, SpotifyToken
 from .crud import save_top_tracks_with_features
 
@@ -49,17 +49,16 @@ def signin(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('')
+    return redirect('index')
 
 
 def profile(request):
     user_songs = Song.objects.filter(user=request.user).select_related("audio", "audio__features")
-    tracks = get_user_top_tracks(request.user, limit=7)
+    form = AudioUploadForm()
     save_top_tracks_with_features(request.user, tracks)
-    return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks})
+    return render(request, "mainapp/profile.html", {"user": request.user, "user_songs": user_songs, "tracks": tracks, 'form': form})
 
 
-#SPOTIFY_API
 @login_required
 def spotify_login(request):
     SpotifyToken.objects.filter(user=request.user).delete()
@@ -72,7 +71,7 @@ def spotify_login(request):
 def spotify_callback(request):
     code = request.GET.get("code")
     if not code:
-        return redirect("profile")
+        return redirect("top_songs")
 
     sp_oauth = get_spotify_oauth()
     token_info = sp_oauth.get_access_token(code)
@@ -90,5 +89,9 @@ def spotify_callback(request):
         }
     )
     print(token_info)
-    return redirect("profile")
+    return redirect("top_songs")
 
+@login_required
+def load_ts(request):
+    tracks = get_user_top_tracks(request.user, limit=7)
+    return render(request, "mainapp/top_songs.html", {"user": request.user, "tracks": tracks})

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+	<div class="bg-light border rounded p-3 mb-3">
+		<h2>Your Spotify Top Tracks</h2>
+
+		<form method="post" action="{% url 'spotify_login' %}">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-primary">
+				Load top tracks
+			</button>
+		</form>
+	</div>
+
+	{% if tracks %}
+	<div class="row g-3">
+		{% for track in tracks %}
+		<div class="col-md-4">
+			<div class="card h-100">
+
+				{% if track.image %}
+				<img src="{{ track.image }}" class="card-img-top">
+				{% endif %}
+
+				<div class="card-body">
+					<h5 class="card-title">{{ track.name }}</h5>
+
+					<p class="card-text">
+						<strong>Artist:</strong> {{ track.artist }}<br>
+						<strong>Album:</strong> {{ track.album }}
+					</p>
+
+					{% if track.preview_url %}
+					<audio controls>
+						<source src="{{ track.preview_url }}">
+					</audio>
+					{% else %}
+					<p class="text-muted">No preview available</p>
+					{% endif %}
+				</div>
+
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	{% else %}
+	<p class="text-muted">No tracks loaded yet.</p>
+	{% endif %}
+
+</div>
+{% endblock %}
