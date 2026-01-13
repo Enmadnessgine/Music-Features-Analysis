@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from .fields import EncryptedTextField
 
 
 class AudioFile(models.Model):
     file = models.FileField(upload_to="audio/")
     file_hash = models.CharField(max_length=64, unique=True)
     size = models.BigIntegerField()
+
 
 class Song(models.Model):
     track_id = models.TextField()
@@ -22,6 +24,7 @@ class Song(models.Model):
     class Meta:
         unique_together = ('user', 'audio')
     
+
 class Features(models.Model):
     audio = models.OneToOneField(
 		AudioFile,
@@ -37,6 +40,7 @@ class Features(models.Model):
     speechiness = models.FloatField()
     tempo = models.FloatField()
     valence = models.FloatField()
+
 
 class SearchInfo(models.Model):
     spotify_id = models.CharField(max_length=22)
@@ -54,10 +58,11 @@ class SearchInfo(models.Model):
     tempo = models.FloatField()
     valence = models.FloatField()
     
+
 class SpotifyToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    access_token = models.TextField()
-    refresh_token = models.TextField()
+    access_token = EncryptedTextField()
+    refresh_token = EncryptedTextField()
     expires_at = models.DateTimeField()
 
     def is_expired(self):
