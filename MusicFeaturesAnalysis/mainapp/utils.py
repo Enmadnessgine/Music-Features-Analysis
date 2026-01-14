@@ -37,6 +37,7 @@ def get_features(id):
 			return None
 
 		res.raise_for_status()
+		
 		return res.json()
 
 def top_songs_info(user, limit=20, time_range="medium_term"):

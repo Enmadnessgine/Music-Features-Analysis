@@ -59,6 +59,8 @@ def profile(request):
     )
     form = AudioUploadForm()
     spotify_connected = SpotifyToken.objects.filter(user=request.user).exists()
+    print(user_songs[0].audio.features.acousticness)
+
     return render(
         request,
         "mainapp/profile.html",
@@ -99,7 +101,6 @@ def spotify_callback(request):
             "expires_at": expires_at,
         },
     )
-    print(token_info)
     return redirect("profile")
 
 

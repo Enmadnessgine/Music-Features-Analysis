@@ -24,8 +24,7 @@ def get_spotify_client(user):
 
 def get_spotify_client(user):
     token = SpotifyToken.objects.get(user=user)
-    print("Spotify token user:", token.user)
-    print("Access token:", token.access_token[:10])
+
     sp_oauth = get_spotify_oauth()
 
     if token.expires_at <= timezone.now():
@@ -49,16 +48,13 @@ def get_user_top_tracks(user, limit=20, time_range="medium_term"):
     sp = get_spotify_client(user)
 
     me = sp.current_user()
-    print("Spotify ID:", me["id"])
-    print("Email:", me["email"])
-    print("Django user:", user)
 
     results = sp.current_user_top_tracks(
         limit=limit,
         time_range=time_range,
         offset = 0,
     )
-    print(results)
+    
     return [
         {
             "spotify_id": track["id"],
