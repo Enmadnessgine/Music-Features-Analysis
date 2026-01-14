@@ -16,7 +16,6 @@ from .models import Song, SpotifyToken
 from .crud import save_top_tracks_with_features
 
 
-
 def index(request):
     return render(request, "base.html")
 
@@ -66,6 +65,7 @@ def spotify_login(request):
 
     sp_oauth = get_spotify_oauth()
     return redirect(sp_oauth.get_authorize_url())
+
 
 @csrf_exempt
 @login_required
