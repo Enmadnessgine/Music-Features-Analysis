@@ -43,7 +43,6 @@
               >
             </li>
             <li><a href="{% url 'profile' %}" class="nav-link px-2 text-white">Profile</a></li>
-            <li><a href="#" class="nav-link px-2 text-white">Upload MP3</a></li>
           </ul>
 
           <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get" action="{% url 'search' %}">
@@ -98,5 +97,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block script %}{% endblock script %}
   </body>
 </html>

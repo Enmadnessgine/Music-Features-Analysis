@@ -1,6 +1,7 @@
 import requests
 from .services.spotify_api.service import get_user_top_tracks
 from functools import wraps
+from mainapp.services.reccobeatsapi.service import ReccoAPIError
 
 def des(func):
 	@wraps(func)
@@ -24,13 +25,19 @@ def get_info(spotify_id: str) -> str | None:
 
 #@des
 def get_features(id):
-	res = requests.get(f"https://api.reccobeats.com/v1/track/{id}/audio-features")
-	if res.status_code == 200:
-		json_obj = res.json()
-		#print(json_obj)
-		return json_obj
-	else:
-		raise ConnectionError("Try later")
+		try:
+			res = requests.get(
+				f"https://api.reccobeats.com/v1/track/{id}/audio-features",
+				timeout=10
+			)
+		except requests.RequestException as e:
+			raise ReccoAPIError("ReccoBeats unavailable") from e
+
+		if res.status_code == 404:
+			return None
+
+		res.raise_for_status()
+		return res.json()
 
 def top_songs_info(user, limit=20, time_range="medium_term"):
 	top_tracks = get_user_top_tracks(user, limit, time_range)

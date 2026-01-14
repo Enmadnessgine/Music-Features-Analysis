@@ -1,54 +1,70 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="d-flex flex-wrap gap-3">
-    <div class="bg-light border rounded m-1 p-3" style="min-width: 250px;">
-        <h2 class="text-dark">User info</h2>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
+  <div class="d-flex flex-column gap-3" style="min-width: 280px">
+    <div class="bg-light border rounded p-3">
+      <h2 class="text-dark">User info</h2>
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+
+      {% if spotify_connected %}
+      <a href="{% url 'load_ts' %}" class="btn btn-success">
+        Load Top Tracks
+      </a>
+      {% else %}
+      <a href="{% url 'spotify_login' %}" class="btn btn-primary">
+        Connect Spotify
+      </a>
+      {% endif %}
     </div>
 
-    <div class="bg-light border rounded m-1 p-3" style="flex-grow:1;">
-        <h2>Upload MP3</h2>
-        <form action="{% url 'upload_audio' %}" method="POST" enctype='multipart/form-data'>
-            {% csrf_token %} 
-            <div class="mb-2">
-                <input type='file' name='fileToUpload' class="form-control">
-            </div>
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
+    <div class="bg-light border rounded p-3">
+      <h2>Upload MP3</h2>
+      <form
+        action="{% url 'upload_audio' %}"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        {% csrf_token %} 
+		{{ form.fileToUpload }} 
+		{{ form.title }} 
+		{{ form.artist }}
+        <button type="submit" class="btn btn-primary mt-2">Upload</button>
+      </form>
+    </div>
+  </div>
 
-        {% if user_songs %}
-        <h2 class="mt-4">Your Songs:</h2>
-        <div class="list-group">
-            {% for song in user_songs %}
-            <div class="list-group-item mb-2">
-                <h5>{{ song.title }} — {{ song.artist }}</h5>
-                <p><strong>Track ID:</strong> {{ song.track_id }}</p>
-                <p><strong>File size:</strong> {{ song.audio.size }} bytes</p>
-                <p><strong>File hash:</strong> {{ song.audio.file_hash }}</p>
-                {% if song.audio.features %}
-                <h6>Audio Features:</h6>
-                <ul>
-                    <li>Acousticness: {{ song.audio.features.acousticness }}</li>
-                    <li>Danceability: {{ song.audio.features.danceability }}</li>
-                    <li>Energy: {{ song.audio.features.energy }}</li>
-                    <li>Instrumentalness: {{ song.audio.features.instrumentalness }}</li>
-                    <li>Liveness: {{ song.audio.features.liveness }}</li>
-                    <li>Loudness: {{ song.audio.features.loudness }}</li>
-                    <li>Speechiness: {{ song.audio.features.speechiness }}</li>
-                    <li>Tempo: {{ song.audio.features.tempo }}</li>
-                    <li>Valence: {{ song.audio.features.valence }}</li>
-                </ul>
-                {% else %}
-                <p class="text-danger">Features not extracted yet.</p>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
+  <div class="bg-light border rounded p-3 flex-grow-1">
+    {% if user_songs %}
+    <h2 class="mt-2">Your Songs:</h2>
+    <div class="list-group">
+      {% for song in user_songs %}
+      <div class="list-group-item mb-2">
+        <h5>{{ song.title }} — {{ song.artist }}</h5>
+        <p><strong>Track ID:</strong> {{ song.track_id }}</p>
+        <p><strong>File size:</strong> {{ song.audio.size }} bytes</p>
+
+        {% if song.audio.features %}
+        <h6>Audio Features:</h6>
+        <ul>
+          <li>Acousticness: {{ song.audio.features.acousticness }}</li>
+          <li>Danceability: {{ song.audio.features.danceability }}</li>
+          <li>Energy: {{ song.audio.features.energy }}</li>
+          <li>Instrumentalness: {{ song.audio.features.instrumentalness }}</li>
+          <li>Liveness: {{ song.audio.features.liveness }}</li>
+          <li>Loudness: {{ song.audio.features.loudness }}</li>
+          <li>Speechiness: {{ song.audio.features.speechiness }}</li>
+          <li>Tempo: {{ song.audio.features.tempo }}</li>
+          <li>Valence: {{ song.audio.features.valence }}</li>
+        </ul>
         {% else %}
-        <p class="mt-3">You have no uploaded songs yet.</p>
+        <p class="text-danger">Features not extracted yet.</p>
         {% endif %}
+      </div>
+      {% endfor %}
     </div>
+    {% else %}
+    <p class="mt-3">You have no uploaded songs yet.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

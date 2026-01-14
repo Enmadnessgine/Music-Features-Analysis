@@ -75,21 +75,37 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
                 "artist": track["artist"],
             }
         )
-
-        Features.objects.update_or_create(
-            audio=audio,
-            defaults={
-                "acousticness": features_data["acousticness"],
-                "danceability": features_data["danceability"],
-                "energy": features_data["energy"],
-                "instrumentalness": features_data["instrumentalness"],
-                "liveness": features_data["liveness"],
-                "loudness": features_data["loudness"],
-                "speechiness": features_data["speechiness"],
-                "tempo": features_data["tempo"],
-                "valence": features_data["valence"],
-            }
-        )
+        
+        if features_data is None:
+            Features.objects.update_or_create(
+                audio=audio,
+                defaults={
+                    "acousticness": features_data.get("acousticness", 0),
+                    "danceability": features_data.get("danceability", 0),
+                    "energy": features_data.get("energy", 0),
+                    "instrumentalness": features_data.get("instrumentalness", 0),
+                    "liveness": features_data.get("liveness", 0),
+                    "loudness": features_data.get("loudness", 0),
+                    "speechiness": features_data.get("speechiness", 0),
+                    "tempo": features_data.get("tempo", 0),
+                    "valence": features_data.get("valence", 0),
+                }
+            )
+        else:
+            Features.objects.update_or_create(
+                audio=audio,
+                defaults={
+                    "acousticness": 0,
+                    "danceability": 0,
+                    "energy": 0,
+                    "instrumentalness": 0,
+                    "liveness": 0,
+                    "loudness": 0,
+                    "speechiness": 0,
+                    "tempo": 0,
+                    "valence": 0,
+                }
+            )
 
         print(f"Saved: {track['name']}")
 

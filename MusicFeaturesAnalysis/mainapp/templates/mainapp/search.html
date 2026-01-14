@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
-<div class="bg-light border rounded m-1 p-3">
+<div class="bg-light border rounded m-1 p-3" id="search-result">
   {% if data %}
-  <h3>Search Results:</h3>
+  <h3 class="mb-3">Search Results for id {{ q }}</h3>
   <ul>
     <li><strong>Spotify ID:</strong> {{ data.spotify_id }}</li>
     <li><strong>ReccoBeat ID:</strong> {{ data.reccobeats_id }}</li>
@@ -19,8 +19,80 @@
     <li><strong>Tempo:</strong> {{ data.tempo }}</li>
     <li><strong>Valence:</strong> {{ data.valence }}</li>
   </ul>
-  {% elif error  %}
-    <h3>{{ error }}</h3>
+  {% elif error %}
+  <h3>{{ error }}</h3>
   {% endif %}
 </div>
 {% endblock %}
+
+{% block script %}
+<script>
+  console.log("JS LOADED");
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchinput = document.querySelector(`input[name='q']`);
+    const result_container = document.getElementById("search-result");
+
+    if (!searchinput || !result_container)
+      return;
+
+    let debounceTimeout;
+
+    searchinput.addEventListener("input", function () {
+      clearTimeout(debounceTimeout);
+
+      const query = this.value.trim();
+
+      if (query.length < 2) {
+        result_container.innerHTML = '<p class="text-center my-5">Please enter at least 2 characters to search.</p>';
+        return;
+      }
+
+      debounceTimeout = setTimeout(() => {
+        fetch(`/search_ajax?q=${encodeURIComponent(query)}`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+          .then(response => response.json())
+          .then(
+            data => {
+
+              if (!data.ok) {
+                result_container.innerHTML = `<h3>${data.error}</h3>`;
+                return;
+              }
+
+              const info = data.data;
+
+              const resc = `
+                <h3 class="mb-3">Search Results for id ${data.q}</h3>
+                <ul>
+                  <li><strong>Spotify ID:</strong> ${info.spotify_id}</li>
+                  <li><strong>ReccoBeat ID:</strong> ${info.reccobeats_id}</li>
+                  <li>
+                    <strong>Link:</strong>
+                    <a href="${info.link}" target="_blank">${info.link}</a>
+                  </li>
+                  <li><strong>Acousticness:</strong> ${info.acousticness}</li>
+                  <li><strong>Danceability:</strong> ${info.danceability}</li>
+                  <li><strong>Energy:</strong> ${info.energy}</li>
+                  <li><strong>Instrumentalness:</strong> ${info.instrumentalness}</li>
+                  <li><strong>Liveness:</strong> ${info.liveness}</li>
+                  <li><strong>Loudness:</strong> ${info.loudness}</li>
+                  <li><strong>Speechiness:</strong> ${info.speechiness}</li>
+                  <li><strong>Tempo:</strong> ${info.tempo}</li>
+                  <li><strong>Valence:</strong> ${info.valence}</li>
+                </ul>
+              `;
+
+              result_container.innerHTML = resc;
+            })
+            .catch(err => {
+              result_container.innerHTML = '<h3>Network error</h3>';
+              console.error(err);
+            });
+      }, 300);
+    })
+  });
+</script>
+{% endblock script %}
