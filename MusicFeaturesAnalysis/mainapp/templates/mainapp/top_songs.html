@@ -2,18 +2,6 @@
 
 {% block content %}
 <div class="container mt-4">
-
-	<div class="bg-light border rounded p-3 mb-3">
-		<h2>Your Spotify Top Tracks</h2>
-
-		<form method="post" action="{% url 'spotify_login' %}">
-			{% csrf_token %}
-			<button type="submit" class="btn btn-primary">
-				Load top tracks
-			</button>
-		</form>
-	</div>
-
 	{% if tracks %}
 	<div class="row g-3">
 		{% for track in tracks %}
@@ -46,7 +34,7 @@
 		{% endfor %}
 	</div>
 	{% else %}
-	<p class="text-muted">No tracks loaded yet.</p>
+	<p class="m-1 p-1">You haven't any top tracks, say about this error to spotify!We don't know why they don't give your info!</p>
 	{% endif %}
 
 </div>

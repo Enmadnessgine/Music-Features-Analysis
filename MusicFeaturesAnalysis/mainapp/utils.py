@@ -1,6 +1,7 @@
 import requests
 from .services.spotify_api.service import get_user_top_tracks
 from functools import wraps
+from mainapp.services.reccobeatsapi.service import ReccoAPIError
 
 def des(func):
 	@wraps(func)
@@ -24,7 +25,6 @@ def get_info(spotify_id: str) -> str | None:
 
 #@des
 def get_features(id):
-	def get_features(self, id):
 		try:
 			res = requests.get(
 				f"https://api.reccobeats.com/v1/track/{id}/audio-features",
