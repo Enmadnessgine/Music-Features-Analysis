@@ -1,0 +1,26 @@
+All ml core made by MaksymMaryniuk
+
+
+
+This is short documentary about functionality of ML/DS core
+
+Interaction:
+  From now, every useful function you could take from DataModifying/models/inference.py
+
+Functionality:
+  Genre predictor, based on user info in DB. Also basic genre classifier from one song
+
+Data Science:
+  I chose 9 basic genre (pop rock electronic hip_hop jazz
+                          metal classical rnb folk reggae ambient)
+  But due to similar patterns I mapped them into 5 (urban = pop + hip-hop + electronic
+                                                      acoustic = jazz + folk
+                                                      calm = classical + ambient
+                                                      rock
+                                                      reggae)
+  Furthermore, i log some features and clipped them.
+
+ML:
+  PCA - explained 0.49: some noise with "energy" and "loudness"
+  model: RandomForest
+  mean accuracy: 0.83
