@@ -17,7 +17,8 @@ sp = Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id,
                                                    client_secret=client_secret))
 
 class DataBuilder:
-    def get_features(self, id: str) -> dict | Exception:
+    @staticmethod
+    def get_features(id: str) -> dict | Exception:
         r""" basic feature extraction from ReccoBeats.
         :param id: ReccoBeats ID
         :return: dictionary object
@@ -31,7 +32,8 @@ class DataBuilder:
         else:
             raise ValueError(f"Помилка API! Статус: {res.status_code}; Текст відповіді: {res.text}")
 
-    def get_info(self, id: str) -> dict | None | Exception:
+    @staticmethod
+    def get_info(id: str) -> dict | None | Exception:
         r""" all covered info about ID song.
         To get the ReccoBeats ID use return_result['content'][0]['id']
         :param id: Spotify ID
@@ -51,7 +53,8 @@ class DataBuilder:
         except Exception as e:
             raise e
 
-    def get_spotify_id(self, song_name: str, artist_name: str) -> str | None:
+    @staticmethod
+    def get_spotify_id(song_name: str, artist_name: str) -> str | None:
         r""" Spotify ID by artist name and song name by using Spotify API.
         :param song_name: Name of the song (raw data)
         :param artist_name: Name of the artist (raw data)
@@ -65,7 +68,8 @@ class DataBuilder:
             return items[0]['id']
         return None
 
-    def add_csv_id(self, df: DataFrame, csv_path: str):
+    @staticmethod
+    def add_csv_id(df: DataFrame, csv_path: str):
         r""" improve raw data by adding spotify ID as third column.
             If inside the file there was some id, it will ignore them
         :param df: DataFrame of the raw data
@@ -80,7 +84,7 @@ class DataBuilder:
             artist = df.loc[i, "artist_name"]
 
             try:
-                spotify_id = self.get_spotify_id(song, artist)
+                spotify_id = DataBuilder.get_spotify_id(song, artist)
                 df.loc[i, "spotify_id"] = spotify_id
 
                 # print(f"{i + 1}/{len(df)}: {song} - {artist} => {spotify_id}")
@@ -91,7 +95,8 @@ class DataBuilder:
 
             df.to_csv(csv_path, index=False)
 
-    def create_features_csv(self, df: DataFrame, csv_path: str, genre: str):
+    @staticmethod
+    def create_features_csv(df: DataFrame, csv_path: str, genre: str):
         r""" adds features into csv that contains at least "spotify_id" column.
             creates additional column "genre" due to supervised learning models.
             If ReccoBeats didnt match any - ignore row.
@@ -101,16 +106,16 @@ class DataBuilder:
         """
         for i in range(len(df)):
             spotify_id = df['spotify_id'][i]
-            reccobeats_id = self.get_info(spotify_id)
+            reccobeats_id = DataBuilder.get_info(spotify_id)
             if reccobeats_id == None:
                 continue
-            features = self.get_features(reccobeats_id['content'][0]['id'])
+            features = DataBuilder.get_features(reccobeats_id['content'][0]['id'])
             df2 = pd.DataFrame([features]).drop(['id', 'isrc', 'href'], axis=1)
             df2.loc[0, 'genre'] = genre
             df2.to_csv(csv_path,  mode='a', index=False, header=False)
 
-
-    def raw_csv_into_features(self, df: DataFrame, csv_raw: str, csv_feature: str, genre: str):
+    @staticmethod
+    def raw_csv_into_features(df: DataFrame, csv_raw: str, csv_feature: str, genre: str):
         r""" Takes the raw data, adding column "spotify_id" (if the music have not id - ignore).
             Takes feature csv and add rows + "genre" column.
             final result: feature.csv have data and additional column "genre"
@@ -119,5 +124,5 @@ class DataBuilder:
         :param csv_feature: path of the feature csv
         :param genre: music genre that will be transfer
         """
-        self.add_csv_id(df, csv_raw)
-        self.create_features_csv(df, csv_feature, genre)
+        DataBuilder.add_csv_id(df, csv_raw)
+        DataBuilder.create_features_csv(df, csv_feature, genre)

@@ -17,8 +17,7 @@ def create_features(csv_files: list, raw_folder: str, feature_folder: str):
         except UnicodeDecodeError:
             df = pd.read_csv(os.path.join(raw_folder, i), encoding="cp1252")
         name_genre = i.split('_')[0]
-        prep = DataBuilder()
-        prep.raw_csv_into_features(df, os.path.join(raw_folder, i),
+        DataBuilder.raw_csv_into_features(df, os.path.join(raw_folder, i),
                                 os.path.join(feature_folder, 'features.csv'),
                                 name_genre)
 
