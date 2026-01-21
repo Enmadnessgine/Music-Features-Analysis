@@ -7,11 +7,11 @@ def mapping(df: DataFrame, features_folder_path: str):
             Adds additional columns as "genre_mapped" (nine values)
             and "y" (five values)
     :param df: DataFrame that contains features and "genre" column
-    :param features_folder_path: feature path
+    :param features_folder_path: feature path with .csv
     """
     df['genre_mapped'] = df['genre'].map(GENRE_TO_GROUP)
     df['y'] = df['genre_mapped'].map(GROUP_TO_ID)
-    df.to_csv(f'{features_folder_path}/features.csv', index=False)
+    df.to_csv(f'{features_folder_path}', index=False)
 
 
 GENRE_TO_GROUP = {
