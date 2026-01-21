@@ -11,10 +11,10 @@ FEATURE_COLS = [
     "valence",
 ]
 
-GENRES = [
-    "rock",
-    "pop",
-    "urban",
-    "jazz",
-    "electronic",
-]
+ID_TO_GENRE = {
+    0: "urban",
+    1: "acoustic",
+    2: "calm",
+    3: "rock",
+    4: "reggae"
+}

@@ -1,6 +1,6 @@
 from collections import defaultdict
 import pandas as pd
-from DataModifying.models.config import FEATURE_COLS, GENRES
+from DataModifying.models.config import FEATURE_COLS, ID_TO_GENRE
 from mainapp.models import AudioFile, Song
 from abc import ABC, abstractmethod
 import joblib
@@ -43,7 +43,12 @@ class GenreClassifier(BaseModel):
         }])
 
         probs = self.model.predict_proba(df)[0]
-        return dict(zip(GENRES, probs))
+        classes = self.model.classes_
+        return {
+            ID_TO_GENRE[c]: float(p)
+            for c, p in zip(classes, probs)
+        }
+        # return dict(zip(classes, probs))
 
 
 class UserGenreAggregator(BaseModel):
