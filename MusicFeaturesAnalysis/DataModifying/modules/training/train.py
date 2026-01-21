@@ -6,9 +6,11 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import FunctionTransformer
-from modules.preprocessing.genre_mapping import mapping
+from DataModifying.modules.preprocessing.genre_mapping import mapping
 from tuning import tune_random_forest
-from modules.preprocessing.clip import clip_outliers_iqr
+from DataModifying.modules.preprocessing.clip import clip_outliers_iqr
+from DataModifying.modules.training.model import upload
+
 
 def create_X_y(path: str) -> tuple:
     r""" creates X and y from feature path and mapping them
@@ -56,9 +58,8 @@ def modeling_pipeline_rf(column_transformer: ColumnTransformer) -> Pipeline:
     :return: Pipeline ready to fit
     :rtype: Pipeline
     """
-    rf = RandomForestClassifier(max_depth= 20, max_features ='sqrt',
-                        min_samples_leaf= 1, min_samples_split= 2,
-                        n_estimators= 200)
+    rf = RandomForestClassifier()
+
     pipe = Pipeline([
     ('Preprocessor', column_transformer),
     ("rf", rf)
@@ -82,8 +83,3 @@ def train_pipeline(pipeline: Pipeline, X, y) -> tuple:
     y_pred = model.predict(X_test)
     report = classification_report(y_test, y_pred, output_dict=True)
     return model, report, params
-
-
-
-
-

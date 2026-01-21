@@ -9,11 +9,11 @@ def tune_random_forest(pipeline, X, y):
     )
 
     params = {
-        "clf__n_estimators": [200, 400],
-        "clf__max_depth": [None, 10, 20],
-        "clf__min_samples_split": [2, 5, 10],
-        "clf__min_samples_leaf": [1, 2, 4],
-        "clf__max_features": ["sqrt", "log2"]
+        "rf__n_estimators": [200, 400],
+        "rf__max_depth": [None, 10, 20],
+        "rf__min_samples_split": [2, 5, 10],
+        "rf__min_samples_leaf": [1, 2, 4],
+        "rf__max_features": ["sqrt", "log2"]
     }
 
     grid = GridSearchCV(
