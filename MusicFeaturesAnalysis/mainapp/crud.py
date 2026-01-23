@@ -4,8 +4,11 @@ from django.db import transaction
 import os
 from hashlib import sha256
 
+from DataModifying.models.Classifier import GenreClassifier
+
 from .models import AudioFile, Song, Features
 from .utils import get_info, get_features
+
 
 def file_hash(uploaded_file) -> str:
 	hasher = sha256()
@@ -78,6 +81,11 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
         )
         
         if features_data is not None:
+            features_obj = type("Features", (), features_data)
+            classifier = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
+            result = classifier.predict_genre(features_obj)
+            print(result)
+
             Features.objects.update_or_create(
                 audio=audio,
                 defaults={

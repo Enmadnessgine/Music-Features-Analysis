@@ -109,8 +109,9 @@ def load_ts(request):
         messages.warning(request, "Please connect your Spotify account first.")
         return redirect("profile")
 
-    tracks = get_user_top_tracks(request.user, limit=7)
+    tracks = get_user_top_tracks(request.user, limit=20)
     save_top_tracks_with_features(request.user, tracks)
+
     return render(
         request, "mainapp/top_songs.html", {"user": request.user, "tracks": tracks}
     )

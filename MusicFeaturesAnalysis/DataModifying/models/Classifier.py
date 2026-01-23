@@ -19,6 +19,19 @@ class BaseModel(ABC):
         """Функція передбачення/початок ml"""
         pass
 
+
+#for predict() method.
+def return_top_genre(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+
+        if not isinstance(result, dict) or not result:
+            raise ValueError("Expected non-empty dict")
+
+        return max(result, key=result.get)
+
+    return wrapper
+
 class GenreClassifier(BaseModel):
 
     def __init__(self, model_path: str):
@@ -86,3 +99,5 @@ class UserGenreAggregator(BaseModel):
 
         count = len(songs)
         return {g: round(p / count, 3) for g, p in genre_sum.items()}
+    
+
