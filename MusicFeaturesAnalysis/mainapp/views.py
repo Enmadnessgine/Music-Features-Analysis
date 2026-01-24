@@ -14,7 +14,7 @@ from .services.spotify_api.service import get_spotify_client, get_user_top_track
 from .forms import UserRegisterForm, UserLoginForm, AudioUploadForm
 from .models import Song, SpotifyToken
 from .crud import save_top_tracks_with_features
-
+from django.core.paginator import Paginator
 
 def index(request):
     return render(request, "base.html")
@@ -112,6 +112,10 @@ def load_ts(request):
     tracks = get_user_top_tracks(request.user, limit=20)
     save_top_tracks_with_features(request.user, tracks)
 
+    paginator = Paginator(tracks, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
     return render(
-        request, "mainapp/top_songs.html", {"user": request.user, "tracks": tracks}
+        request, "mainapp/top_songs.html", {"user": request.user, "tracks": tracks, 'page_obj': page_obj}
     )

@@ -1,41 +1,56 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-	{% if tracks %}
-	<div class="row g-3">
-		{% for track in tracks %}
-		<div class="col-md-4">
-			<div class="card h-100">
-
-				{% if track.image %}
-				<img src="{{ track.image }}" class="card-img-top">
-				{% endif %}
-
-				<div class="card-body">
-					<h5 class="card-title">{{ track.name }}</h5>
-
-					<p class="card-text">
-						<strong>Artist:</strong> {{ track.artist }}<br>
-						<strong>Album:</strong> {{ track.album }}
-					</p>
-
-					{% if track.preview_url %}
-					<audio controls>
-						<source src="{{ track.preview_url }}">
-					</audio>
-					{% else %}
-					<p class="text-muted">No preview available</p>
-					{% endif %}
-				</div>
-
-			</div>
-		</div>
-		{% endfor %}
+  {% if tracks %}
+  <div class="row g-3">
+	<div class="pagination">
+		<span class="step-links">
+			{% if page_obj.has_previous %}
+				<a href="?page=1">&laquo; first</a>
+				<a href="?page={{ page_obj.previous_page_number }}">previous</a>
+			{% endif %}
+	
+			<span class="current">
+				Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+			</span>
+	
+			{% if page_obj.has_next %}
+				<a href="?page={{ page_obj.next_page_number }}">next</a>
+				<a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+			{% endif %}
+		</span>
 	</div>
-	{% else %}
-	<p class="m-1 p-1">You haven't any top tracks, say about this error to spotify!We don't know why they don't give your info!</p>
-	{% endif %}
+    {% for track in page_obj %}
+    <div class="col-md-4">
+      <div class="card h-100">
+        {% if track.image %}
+        <img src="{{ track.image }}" class="card-img-top" />
+        {% endif %}
 
+        <div class="card-body">
+          <h5 class="card-title">{{ track.name }}</h5>
+
+          <p class="card-text">
+            <strong>Artist:</strong> {{ track.artist }}<br />
+            <strong>Album:</strong> {{ track.album }}
+          </p>
+
+          {% if track.preview_url %}
+          <audio controls>
+            <source src="{{ track.preview_url }}" />
+          </audio>
+          {% else %}
+          <p class="text-muted">No preview available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="m-1 p-1">
+    You haven't any top tracks, say about this error to spotify!We don't know
+    why they don't give your info!
+  </p>
+  {% endif %}
 </div>
 {% endblock %}
