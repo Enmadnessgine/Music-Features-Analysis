@@ -1,28 +1,7 @@
-from django.shortcuts import render, redirect, HttpResponse
-from django.contrib import messages
-from .models import Song, SearchInfo
-from .crud import create_song_f
-from .forms import AudioUploadForm
-from mainapp.utils import info_from_s_to_r, get_features
+from django.shortcuts import render
 from django.http import JsonResponse
-
-def analize_audio(request):
-	if request.method == "POST":
-		upload_file = request.FILES.get('fileToUpload')
-		artist = request.POST.get('artist', '')
-		title = request.POST.get('title', '')
-		
-		if upload_file:
-			song = create_song_f(
-				user=request.user,
-				file=upload_file,
-	title=title,
-				artist=artist,
-			)
-			messages.success(request, f"Song '{song.title}' uploaded!")
-		else:
-			messages.error(request, "No file selected!")
-	return redirect('profile')
+from ..models import SearchInfo
+from mainapp.utils import info_from_s_to_r, get_features
 
 def load_search(request):
 	q = request.GET.get('q', "")
