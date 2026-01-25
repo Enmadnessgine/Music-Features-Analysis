@@ -10,3 +10,7 @@ cryptography>=41.0.4
 pandas>=2.2.0
 scikit-learn>=1.4.0
 numpy
+redis[hiredis]
+joblib
+redis
+django-redis

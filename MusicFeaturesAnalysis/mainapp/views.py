@@ -10,11 +10,12 @@ from django.utils import timezone
 from datetime import timedelta
 
 from .spotify_auth import get_spotify_oauth
-from .services.spotify_api.service import get_spotify_client, get_user_top_tracks
+from mainapp.services.spotify_api.service import get_spotify_client, get_user_top_tracks
 from .forms import UserRegisterForm, UserLoginForm, AudioUploadForm
 from .models import Song, SpotifyToken
 from .crud import save_top_tracks_with_features
 from django.core.paginator import Paginator
+from mainapp.services.spotify_api.utils import cache_tokens
 
 def index(request):
     return render(request, "base.html")
@@ -99,6 +100,12 @@ def spotify_callback(request):
             "refresh_token": token_info.get("refresh_token"),
             "expires_at": expires_at,
         },
+    )
+    
+    cache_tokens(
+        access_token=token_info["access_token"],
+        refresh_token=token_info.get("refresh_token"),
+        user_id=request.user.id,
     )
     return redirect("profile")
 

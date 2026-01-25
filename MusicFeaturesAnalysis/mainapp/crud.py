@@ -130,6 +130,3 @@ def delete_user_song(user: User, song_id: int):
 		return True
 	except Song.DoesNotExist:
 		return False
-
-
-			
