@@ -61,7 +61,10 @@ class GenreClassifier(BaseModel):
             ID_TO_GENRE[c]: float(p)
             for c, p in zip(classes, probs)
         }
-        # return dict(zip(classes, probs))
+    
+    @return_top_genre
+    def predict_genre(self, features) -> str:
+        return self.predict(features)
 
 
 class UserGenreAggregator(BaseModel):
