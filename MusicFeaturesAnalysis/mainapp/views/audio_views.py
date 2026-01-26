@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.contrib import messages
-from ..crud import create_song_f
+from ..utils.audio_utils import create_song_f
 
 def analize_audio(request):
 	if request.method == "POST":

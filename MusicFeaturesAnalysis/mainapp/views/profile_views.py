@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from ..forms import AudioUploadForm
 from ..models import Song, SpotifyToken
-from ..crud import save_top_tracks_with_features
+from ..utils.spotify_utils import save_top_tracks_with_features
 from django.core.paginator import Paginator
 from mainapp.services.spotify_api.service import get_user_top_tracks
 
