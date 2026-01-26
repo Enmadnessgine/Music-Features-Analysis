@@ -9,8 +9,6 @@ from mainapp.services.spotify_api.utils import cache_tokens
 
 @login_required
 def spotify_login(request):
-    SpotifyToken.objects.filter(user=request.user).delete()
-
     sp_oauth = get_spotify_oauth()
     return redirect(sp_oauth.get_authorize_url())
 
@@ -35,10 +33,10 @@ def spotify_callback(request):
         },
     )
     
-    """cache_tokens(
+    cache_tokens(
         access_token=token_info["access_token"],
         refresh_token=token_info.get("refresh_token"),
         user_id=request.user.id,
-    )"""
+    )
     
     return redirect("profile")
