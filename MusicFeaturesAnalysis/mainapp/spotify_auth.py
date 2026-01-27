@@ -1,4 +1,3 @@
-import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from django.conf import settings
 

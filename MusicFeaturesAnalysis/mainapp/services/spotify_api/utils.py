@@ -4,11 +4,12 @@ ACCESS_TTL = 60 * 15
 REFRESH_TTL = 60 * 60 * 24 * 7
 
 def cache_tokens(access_token: str, refresh_token: str, user_id: int):
-    cache.set(
-        f"spotify:access:{user_id}",
-        access_token,
-        timeout=ACCESS_TTL,
-    )
+    if access_token:
+        cache.set(
+            f"spotify:access:{user_id}",
+            access_token,
+            timeout=ACCESS_TTL,
+        )
     
     if refresh_token:
         cache.set(
@@ -28,27 +29,3 @@ def delete_tokens(user_id: int):
         f"spotify:access:{user_id}",
         f"spotify:refresh:{user_id}",
     ])
-
-if __name__ == "__main__":
-    test_user_id = 123
-    print("=== Тест кешування токенів ===")
-
-    # Ставимо токени
-    cache_tokens("ACCESS_TEST", "REFRESH_TEST", test_user_id)
-    print("Токени збережені ✅")
-
-    # Отримуємо токени
-    access = get_access_token(test_user_id)
-    refresh = get_refresh_token(test_user_id)
-    print(f"Access token: {access}")
-    print(f"Refresh token: {refresh}")
-
-    # Видаляємо токени
-    delete_tokens(test_user_id)
-    print("Токени видалені ✅")
-
-    # Перевіряємо після видалення
-    access_after = get_access_token(test_user_id)
-    refresh_after = get_refresh_token(test_user_id)
-    print(f"Access token після видалення: {access_after}")
-    print(f"Refresh token після видалення: {refresh_after}")

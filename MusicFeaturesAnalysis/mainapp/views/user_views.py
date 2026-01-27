@@ -1,10 +1,6 @@
-import token
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.contrib.auth import login, logout
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from ..forms import UserRegisterForm, UserLoginForm
 
@@ -17,6 +13,7 @@ def user_login(request):
             return redirect("index")
     else:
         form = UserLoginForm()
+        
     return render(request, "mainapp/login.html", {"form": form})
 
 def signin(request):
@@ -30,6 +27,7 @@ def signin(request):
             messages.error(request, "SignIn is failed!")
     else:
         form = UserRegisterForm()
+        
     return render(request, "mainapp/signin.html", {"form": form})
 
 @login_required

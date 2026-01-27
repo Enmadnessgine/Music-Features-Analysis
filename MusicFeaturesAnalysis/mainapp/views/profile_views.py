@@ -44,7 +44,9 @@ def profile(request):
 
 @login_required
 def load_ts(request):
-    if not SpotifyToken.objects.filter(user=request.user).exists():
+    refresh_token = get_refresh_token(request.user.id)
+    
+    if not refresh_token:
         messages.warning(request, "Please connect your Spotify account first.")
         return redirect("profile")
 

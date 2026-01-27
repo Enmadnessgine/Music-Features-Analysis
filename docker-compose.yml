@@ -10,6 +10,24 @@ services:
     volumes:
       - redis_data:/data
 
+  db:
+    image: postgres:15.3-alpine3.18
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5332:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
   web:
     build: .
     container_name: django-app
@@ -24,23 +42,16 @@ services:
     env_file:
       - .env
 
-  db:
-    container_name: postgres
-    image: postgres:15.3-alpine3.18
+  ngrok:
+    image: ngrok/ngrok:alpine
+    container_name: ngrok
+    depends_on:
+      - web
+    command: http web:8000
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - db-data:/var/lib/postgresql/data
+      NGROK_AUTHTOKEN: ${NGROCK_KEY}
     ports:
-      - "5332:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
+      - "4040:4040"
 
 volumes:
   db-data:

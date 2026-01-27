@@ -37,7 +37,6 @@ class ReccoService:
 		except requests.exceptions.RequestException as e:
 			raise ReccoAPIError(f"Recco API error: {e}") from e
 		
-		
 	def get_info_by_id(self, song_id: str):
 		endpoint = f"track/{song_id}/audio-features"
 		return self._request(
@@ -71,5 +70,3 @@ class ReccoService:
 				"analysis/audio-features",
 				files=files
 			)
-
-		

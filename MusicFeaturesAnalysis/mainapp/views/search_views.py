@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from ..models import SearchInfo
-from ..utils.info_utils import info_from_s_to_r, get_features
 from ..utils.search_utils import resolve_song, build_info
 
 def load_search(request):

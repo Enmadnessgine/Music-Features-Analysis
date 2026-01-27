@@ -1,4 +1,3 @@
-import requests
 from .info_utils import info_from_s_to_r, get_features, build_features_dict
 
 def resolve_song(q: str):
