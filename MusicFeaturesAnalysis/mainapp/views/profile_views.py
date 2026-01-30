@@ -2,17 +2,18 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from ..forms import AudioUploadForm
 from ..models import Song, SpotifyToken
 from ..utils.spotify_utils import save_top_tracks_with_features
 from django.core.paginator import Paginator
 from mainapp.services.spotify_api.service import get_user_top_tracks
 from mainapp.services.spotify_api.utils import cache_tokens, get_access_token, get_refresh_token
-from ...DataModifying.models.Classifier import GenreClassifier
+from DataModifying.models.Classifier import GenreClassifier
 from ..services.model_db import ModelData
 from ..models import AudioFile, Features
 from ..utils.info_utils import build_features_dict_
-from django.http import JsonResponse
+
 
 genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
 audio_model = ModelData(AudioFile)
