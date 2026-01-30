@@ -1,5 +1,6 @@
 import requests
 from ..services.spotify_api.service import get_user_top_tracks
+from ..models import Features
 from mainapp.services.reccobeatsapi.service import ReccoAPIError
 
 def get_info(spotify_id: str) -> str | None:
@@ -70,6 +71,12 @@ FEATURE_FIELDS = (
 
 def build_features_dict(data: dict | None):
 	if not data:
-		return {key for key in FEATURE_FIELDS}
+		return {key: 0 for key in FEATURE_FIELDS}
 
 	return {key: data.get(key) for key in FEATURE_FIELDS}
+
+def build_features_dict_(features: Features | None):
+	if not features:
+		return {key: 0 for key in FEATURE_FIELDS}
+
+	return {key: getattr(features, key) for key in FEATURE_FIELDS}

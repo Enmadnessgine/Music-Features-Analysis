@@ -15,6 +15,17 @@
         Connect Spotify
       </a>
       {% endif %}
+
+      
+      {% if spotify_connected %}
+      <a href="{% url 'load_ts' %}" class="btn btn-success">
+        Load Top Tracks
+      </a>
+      {% else %}
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        See our predict
+      </button>
+      {% endif %}
     </div>
 
     <div class="bg-light border rounded p-3">
@@ -67,4 +78,21 @@
     {% endif %}
   </div>
 </div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Analizes of user listenings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>You mostly listen:
+          {{analizer_data_}}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
