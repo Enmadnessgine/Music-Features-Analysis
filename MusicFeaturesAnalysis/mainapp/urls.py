@@ -13,4 +13,5 @@ urlpatterns = [
     path("profile/top_songs/", profile_views.load_ts, name="load_ts"),
     path("login/spotify/", spotify_views.spotify_login, name="spotify_login"),
     path("callback/spotify/", spotify_views.spotify_callback, name="spotify_callback"),
+    path("load_analizer_info/", profile_views.load_analizer_info, name="load_analizer_info"),
 ]

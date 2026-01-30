@@ -12,6 +12,7 @@ from ...DataModifying.models.Classifier import GenreClassifier
 from ..services.model_db import ModelData
 from ..models import AudioFile, Features
 from ..utils.info_utils import build_features_dict_
+from django.http import JsonResponse
 
 genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
 audio_model = ModelData(AudioFile)
@@ -32,7 +33,7 @@ def profile(request):
 	
 	access_token = get_access_token(request.user.id)
 	refresh_token = get_refresh_token(request.user.id)
-	analizer_data_ = None
+	analizer_data_ = request.session.pop("analizer_data_", None)
 	
 	if access_token:
 		print("Cached access_token:", access_token)
@@ -102,4 +103,5 @@ def load_analizer_info(request):
 	
 	max_data = max(analizer_data, key=lambda k: analizer_data[k])
 	analizer_data_ = max_data if max_data is not None else "we haven't data from service"
-	return redirect('profile')
+	
+	return JsonResponse({"status": 200, "data": analizer_data_})

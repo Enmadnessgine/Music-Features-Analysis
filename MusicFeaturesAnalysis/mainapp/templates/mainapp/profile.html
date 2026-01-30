@@ -16,15 +16,12 @@
       </a>
       {% endif %}
 
-      
       {% if spotify_connected %}
-      <a href="{% url 'load_ts' %}" class="btn btn-success">
-        Load Top Tracks
-      </a>
+      <button id="predictBtn" class="btn btn-danger">See our predict</button>
       {% else %}
-      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        See our predict
-      </button>
+      <a href="{% url 'spotify_login' %}" class="btn btn-primary">
+        Connect Spotify
+      </a>
       {% endif %}
     </div>
 
@@ -79,20 +76,44 @@
   </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Analizes of user listenings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title">Analyses of user listenings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-        <p>You mostly listen:
-          {{analizer_data_}}
-        </p>
+      <div class="modal-body" id="modalBody">
+        Loading...
       </div>
     </div>
   </div>
 </div>
 
 {% endblock %}
+
+{% block script %}
+<script>
+  document.getElementById("predictBtn").addEventListener("click", function() {
+    fetch("/load-analizer-info/", {
+      method: "GET",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("modalBody").textContent = 
+        data.status === 200 ? "You mostly listen: " + data.data : data.error;
+  
+      var modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+      modal.show();
+    })
+    .catch(err => {
+      document.getElementById("modalBody").textContent = "Error fetching data!";
+      var modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+      modal.show();
+    });
+  });
+  </script>
+{% endblock script %}
