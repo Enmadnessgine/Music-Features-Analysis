@@ -27,7 +27,7 @@ class Song_(ModelData):
 				"audio": audio,
 			},
 			defaults={
-				"track_if": track_id if track_id is not None else "",
+				"track_if": track_id or "",
 				"title": title,
 				"artist": artist,
 			},
@@ -36,10 +36,10 @@ class Song_(ModelData):
 		return song, _
 
 	def delete(self, user, song_id):
-		return self.delete(id=song_id, user=user) > 0
+		return super().delete(id=song_id, user=user) > 0
 
 	def get_all(self, user):
-		songs = self.get_all(filters={"user": user}, select_related=["audio", "audio__features"])
+		songs = super().get_all(filters={"user": user}, select_related=["audio", "audio__features"])
 		return songs
 
 class Features_(ModelData):
@@ -47,7 +47,7 @@ class Features_(ModelData):
 		super().__init__(model)
 	
 	def create_features(self, audio, features_data):
-		self.get_or_update(
+		return self.get_or_update(
             kwargs={"audio": audio}, defaults=features_data
         )
 

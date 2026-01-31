@@ -36,7 +36,7 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
             print(genre)
             song.genre = genre
             song.save(update_fields=["genre"])
-            features_repo.create_features(audio, build_features_dict(features_data))
+            features = features_repo.create_features(audio, build_features_dict(features_data))
         print(f"Saved: {track['name']}")
 
 def get_user_songs(user: User):
