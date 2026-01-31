@@ -11,6 +11,11 @@ features_repo = ModelData(Features)
 
 @transaction.atomic
 def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
+
+    classifier = GenreClassifier(
+        model_path="DataModifying/models/artifacts/genre_classifier.pkl"
+    )
+
     for track in top_tracks:
         spotify_id = track["spotify_id"]
 
@@ -30,7 +35,7 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
             defaults={"file": None, "size": 0},
         )
 
-        song_repo.get_or_create(
+        song, created = song_repo.get_or_create(
             kwargs={
                 "user": user,
                 "audio": audio,
@@ -44,16 +49,20 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
 
         if features_data:
             features_obj = type("Features", (), features_data)
-            classifier = GenreClassifier(
-                model_path="DataModifying/models/artifacts/genre_classifier.pkl"
-            )
-            print(classifier.predict_genre(features_obj))
+            genre = classifier.predict_genre(features_obj)
 
-        features_repo.get_or_update(
-            kwargs={"audio": audio}, defaults=build_features_dict(features_data)
-        )
+            print(genre)
+            
+            song.genre = genre
+            song.save(update_fields=["genre"])
+
+            features_repo.get_or_update(
+                kwargs={"audio": audio},
+                defaults=build_features_dict(features_data),
+            )
 
         print(f"Saved: {track['name']}")
+
 
 def get_user_songs(user: User):
     return song_repo.get_all(
