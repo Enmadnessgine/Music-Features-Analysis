@@ -11,14 +11,16 @@ from mainapp.services.spotify_api.service import get_user_top_tracks
 from mainapp.services.spotify_api.utils import cache_tokens, get_access_token, get_refresh_token
 from DataModifying.models.Classifier import GenreClassifier
 from ..services.model_db import ModelData
-from ..models import AudioFile, Features
+from ..models import AudioFile, Features, Song
 from ..utils.info_utils import build_features_dict_
+from services.models_crud.crud import audio_repo, song_repo, features_repo
+
 
 
 genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
 audio_model = ModelData(AudioFile)
 features_model = ModelData(Features)
-
+song_model = ModelData(Song)
 @login_required
 def profile(request):
 	user_songs = Song.objects.filter(user=request.user).select_related(
@@ -75,32 +77,13 @@ def load_ts(request):
 	)
 	
 def load_analizer_info(request):
-	refresh_token = get_refresh_token(request.user.id)
-	
-	if not refresh_token:
-		messages.warning(request, "Please connect your Spotify account first.")
-		return redirect("profile")
-
-	tracks = get_user_top_tracks(request.user, limit=20)
 	analizer_data = {}
-
+	tracks = song_repo.get_all(request.user)
+	
 	for track in tracks:
-		spotify_id = track.get("spotify_id")
-		audio = audio_model.get({"file_hash": f"spotify:{spotify_id}"})
-		if not audio:
-			continue
-
-		features = features_model.get({"audio": audio})
-		if not features:
-			continue
-
-		features_dict = build_features_dict_(features)
-
-		for key, value in features_dict.items():
-			if key not in analizer_data:
-				analizer_data[key] = value
-			else:
-				analizer_data[key] = max(analizer_data[key], value)
+		genre = track.genre
+		if len(genre) > 0:
+			analizer_data[genre] += 1
 	
 	max_data = max(analizer_data, key=lambda k: analizer_data[k])
 	analizer_data_ = max_data if max_data is not None else "we haven't data from service"

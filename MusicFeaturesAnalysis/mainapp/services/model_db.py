@@ -41,3 +41,4 @@ class ModelData:
 
 	def get_all(self, filters=None, select_related=None, prefetch_related=None):
 		return self._get_all(filters, select_related, prefetch_related)
+

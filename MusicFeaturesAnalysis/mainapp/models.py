@@ -19,7 +19,7 @@ class Song(models.Model):
 		on_delete=models.PROTECT,
 		related_name="songs"
 	)
-    genre = models.CharField(max_length=60, default="rock")
+    genre = models.CharField(max_length=60, default="")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="songs")
     
     class Meta:

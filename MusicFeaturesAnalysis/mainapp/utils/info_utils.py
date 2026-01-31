@@ -3,6 +3,7 @@ from ..services.spotify_api.service import get_user_top_tracks
 from ..models import Features
 from mainapp.services.reccobeatsapi.service import ReccoAPIError
 
+
 def get_info(spotify_id: str) -> str | None:
 	r = requests.get(f"https://api.reccobeats.com/v1/track?ids={spotify_id}")
 	r.raise_for_status()
@@ -13,8 +14,6 @@ def get_info(spotify_id: str) -> str | None:
 
 	return data["content"][0]["id"]
 
-
-# @des
 def get_features(id):
 	try:
 		res = requests.get(
