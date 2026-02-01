@@ -4,7 +4,7 @@ from DataModifying.models.Classifier import GenreClassifier
 from ..models import AudioFile, Song, Features
 from ..utils.info_utils import get_info, get_features, build_features_dict
 from mainapp.services.model_db import ModelData
-from services.models_crud.crud import audio_repo, song_repo, features_repo
+from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
 audio_repo = ModelData(AudioFile)
 song_repo = ModelData(Song)

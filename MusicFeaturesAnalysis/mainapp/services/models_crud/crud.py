@@ -1,5 +1,5 @@
 from ..model_db import ModelData
-from models import Song, SearchInfo, SpotifyToken, AudioFile, Features
+from mainapp.models import Song, SearchInfo, SpotifyToken, AudioFile, Features
 
 class Audio_(ModelData):
 	def __init__(self, model=AudioFile):
@@ -27,7 +27,7 @@ class Song_(ModelData):
 				"audio": audio,
 			},
 			defaults={
-				"track_if": track_id or "",
+				"track_id": track_id or "",
 				"title": title,
 				"artist": artist,
 			},

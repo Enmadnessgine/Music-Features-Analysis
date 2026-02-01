@@ -13,7 +13,7 @@ from DataModifying.models.Classifier import GenreClassifier
 from ..services.model_db import ModelData
 from ..models import AudioFile, Features, Song
 from ..utils.info_utils import build_features_dict_
-from services.models_crud.crud import audio_repo, song_repo, features_repo
+from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
 
 
@@ -79,13 +79,21 @@ def load_ts(request):
 def load_analizer_info(request):
 	analizer_data = {}
 	tracks = song_repo.get_all(request.user)
-	
+
 	for track in tracks:
 		genre = track.genre
-		if len(genre) > 0:
-			analizer_data[genre] += 1
-	
-	max_data = max(analizer_data, key=lambda k: analizer_data[k])
-	analizer_data_ = max_data if max_data is not None else "we haven't data from service"
-	
-	return JsonResponse({"status": 200, "data": analizer_data_})
+		if genre:
+			analizer_data[genre] = analizer_data.get(genre, 0) + 1
+
+	if not analizer_data:
+		return JsonResponse({
+			"status": 200,
+			"data": "We haven't data from service!"
+		})
+
+	max_data = max(analizer_data, key=analizer_data.get)
+	answer = f"You mostly listen: {max_data}"
+	return JsonResponse({
+		"status": 200,
+		"data": answer,
+	})
