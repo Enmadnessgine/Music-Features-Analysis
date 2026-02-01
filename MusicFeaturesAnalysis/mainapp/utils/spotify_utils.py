@@ -6,10 +6,6 @@ from ..utils.info_utils import get_info, get_features, build_features_dict
 from mainapp.services.model_db import ModelData
 from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
-audio_repo = ModelData(AudioFile)
-song_repo = ModelData(Song)
-features_repo = ModelData(Features)
-
 classifier = GenreClassifier(
         model_path="DataModifying/models/artifacts/genre_classifier.pkl"
     )
