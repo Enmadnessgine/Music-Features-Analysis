@@ -1,5 +1,5 @@
 from ..model_db import ModelData
-from mainapp.models import Song, SearchInfo, SpotifyToken, AudioFile, Features
+from mainapp.models import Song, SearchInfo, SpotifyToken, AudioFile, Features, Statistics
 
 class Audio_(ModelData):
 	def __init__(self, model=AudioFile):
@@ -51,7 +51,60 @@ class Features_(ModelData):
             kwargs={"audio": audio}, defaults=features_data
         )
 
+class SpotifyToken_(ModelData):	
+	def __init__(self, model=SpotifyToken):
+		super().__init__(model)
+	
+	def create_or_update(self, user, access_token, refresh_token, expires_at):
+		self.update_or_create(
+			kwargs={"user": user},
+			defaults={
+				"access_token": access_token,
+				"refresh_token": refresh_token,
+				"expires_at": expires_at,
+			}
+		)
 
+class Search_(ModelData):
+	def __init__(self, model=SearchInfo):
+		super().__init__(model)
+	
+	def create_or_update(self, data):
+		self.update_or_create(
+			kwargs={
+				"user": data["user"],
+				"reccobeats_id": data["reccobeats_id"],
+				"spotify_id": data["spotify_id"],
+			},
+			defaults=data,
+		)
+	
+	def get_searches(self, user):
+		searches = self.get_all(filters={"user": user})
+		return searches
+
+class Statistics_(ModelData):
+	def __init__(self, model=Statistics):
+		super().__init__(model)
+	
+	def create_or_update(self, user, total_songs, tog_genre, rarest_genre):
+		statistic, created = self.update_or_create(
+			kwargs={
+				"user": user, 
+				"total_songs": total_songs,
+				"most_common_genre_percent": tog_genre,
+				"rarest_genre": rarest_genre,
+			}
+		)
+		return statistic, created
+
+	def get_statistic(self, user):
+		stats = self.get_all(filters={"user": user})
+		return stats
+	
 audio_repo = Audio_()
 song_repo = Song_()
 features_repo = Features_()
+spotify_repo = SpotifyToken_()
+search_repo = Search_()
+statistics_repo = Statistics_()

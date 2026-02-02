@@ -26,6 +26,17 @@ class ModelData:
 	def get(self, **kwargs):
 		return self.model.objects.filter(**kwargs).first()
 
+	@transaction.atomic
+	def update_or_create(self, kwargs: dict, defaults: dict = None):
+		if defaults is None:
+			defaults = {}
+
+		obj, created = self.model.objects.update_or_create(
+			**kwargs,
+			defaults=defaults
+		)
+		return obj, created
+
 	def delete(self, **kwargs):
 		return self.model.objects.filter(**kwargs).delete()
 
