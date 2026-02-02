@@ -1,11 +1,10 @@
 from collections import defaultdict
 import pandas as pd
-from DataModifying.models.config import FEATURE_COLS, ID_TO_GENRE
+from DataModifying.models.ModelRegistry import ModelRegistry
+from DataModifying.models.config import FEATURE_COLS, GROUPS
 from mainapp.models import AudioFile, Song
 from abc import ABC, abstractmethod
 import joblib
-
-from abc import ABC, abstractmethod
 
 class BaseModel(ABC):
 
@@ -57,15 +56,21 @@ class GenreClassifier(BaseModel):
 
         probs = self.model.predict_proba(df)[0]
         classes = self.model.classes_
+
         return {
-            ID_TO_GENRE[c]: float(p)
+            c: float(p)
             for c, p in zip(classes, probs)
         }
     
     @return_top_genre
-    def predict_genre(self, features) -> str:
+    def predict_macro_genre(self, features) -> str:
         return self.predict(features)
 
+    @return_top_genre
+    def predict_subgenre(self, features) -> str:
+        macro = self.predict_macro_genre(features)
+        leaf = ModelRegistry.get(macro).predict(features)
+        return leaf
 
 class UserGenreAggregator(BaseModel):
 
@@ -75,11 +80,14 @@ class UserGenreAggregator(BaseModel):
     def load(self):
         pass
 
-    def predict(self, user):
-        '''Takes ALL information about user from DB and works with prediction
+    def predict(self, user) -> list:
+        '''Takes ALL information about user from DB and works with prediction.
+        Returns dictionary, which has root genres with their probabilities to appear in
+        user account (basic mean) and with subgenre as a key and list as a value. The list has
+        dict with subgenres as key and percentage of subgenre as value. It'll give a lot of fun with statistics!
         :param user: User instance (basic django.contrib.auth.models.User)
-        :return Dictionary with genre as key and percent as value
-        :rtype dict
+        :return: list of dicts with special order, sorted by percentage of root genre
+        :rtype list
         '''
         songs = (
             Song.objects
@@ -94,13 +102,36 @@ class UserGenreAggregator(BaseModel):
 
     def _predict_songs(self, songs):
         genre_sum = defaultdict(float)
+        sub_sum = defaultdict(float)
 
         for song in songs:
             probs = self.genre_model.predict(song.audio.features)
             for genre, p in probs.items():
                 genre_sum[genre] += p
 
+            macro = self.genre_model.predict_macro_genre(song.audio.features)
+            sub_model = ModelRegistry.get(macro)
+            leaf_probs = sub_model.predict(song.audio.features)
+
+            for s_genre, p in leaf_probs.items():
+                sub_sum[s_genre] += p
+
+
+
         count = len(songs)
-        return {g: round(p / count, 3) for g, p in genre_sum.items()}
-    
+        result = []
+        for macro, subs in GROUPS.items():
+            if genre_sum[macro] > 0:
+                result.append({
+                    "macro_genre": macro,
+                    "percentage": round(genre_sum[macro] / count, 2),
+                    "subgenres": [
+                        {sub: round(sub_sum[sub] / count, 2)
+                        for sub in subs if sub_sum[sub] > 0}
+                    ]
+                })
+
+        return sorted(result, key=lambda x: x['percentage'], reverse=True)
+
+
 

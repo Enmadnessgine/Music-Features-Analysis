@@ -32,7 +32,7 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
         song, created = song_repo.create_song(user, audio, track["name"], track["artist"], spotify_id) 
         if features_data:
             features_obj = type("Features", (), features_data)
-            genre = classifier.predict_genre(features_obj)
+            genre = classifier.predict_macro_genre(features_obj)
             print(genre)
             song.genre = genre
             song.save(update_fields=["genre"])
