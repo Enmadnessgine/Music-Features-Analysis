@@ -15,7 +15,7 @@ from ..models import AudioFile, Features, Song
 from ..utils.info_utils import build_features_dict_
 from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
-genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
+genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier_v02.pkl")
 
 @login_required
 def profile(request):

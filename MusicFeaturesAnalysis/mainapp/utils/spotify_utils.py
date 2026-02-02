@@ -6,9 +6,7 @@ from ..utils.info_utils import get_info, get_features, build_features_dict
 from mainapp.services.model_db import ModelData
 from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
-classifier = GenreClassifier(
-        model_path="DataModifying/models/artifacts/genre_classifier.pkl"
-    )
+classifier = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier_v02.pkl")
 
 @transaction.atomic
 def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
@@ -28,7 +26,7 @@ def save_top_tracks_with_features(user: User, top_tracks: list[dict]):
         song, created = song_repo.create_song(user, audio, track["name"], track["artist"], spotify_id) 
         if features_data:
             features_obj = type("Features", (), features_data)
-            genre = classifier.predict_macro_genre(features_obj)
+            genre = classifier.predict_subgenre(features_obj)
             print(genre)
             song.genre = genre
             song.save(update_fields=["genre"])

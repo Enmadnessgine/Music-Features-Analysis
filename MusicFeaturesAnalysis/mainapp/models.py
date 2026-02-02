@@ -43,6 +43,15 @@ class Features(models.Model):
     valence = models.FloatField()
 
 
+class Statistics(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="statistics")
+    total_songs = models.IntegerField(default=0)
+    most_common_genre_percent = models.JSONField(default=dict) #ex: {"pop": 0.4}
+    most_uncommon_genre_percent = models.JSONField(default=dict)
+    rarest_genre = models.CharField(max_length=50, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class SearchInfo(models.Model):
     spotify_id = models.CharField(max_length=22)
     reccobeats_id = models.CharField(max_length=128)
