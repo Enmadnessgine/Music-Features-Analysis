@@ -15,12 +15,8 @@ from ..models import AudioFile, Features, Song
 from ..utils.info_utils import build_features_dict_
 from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
 
-
-
 genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier.pkl")
-audio_model = ModelData(AudioFile)
-features_model = ModelData(Features)
-song_model = ModelData(Song)
+
 @login_required
 def profile(request):
 	user_songs = Song.objects.filter(user=request.user).select_related(
