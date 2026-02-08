@@ -5,22 +5,33 @@ All ml core made by MaksymMaryniuk
 This is short documentary about functionality of ML/DS core
 
 Interaction:
-  From now, every useful function you could take from DataModifying/models/inference.py
-
-Functionality:
-  Genre predictor, based on user info in DB. Also basic genre classifier from one song
+  From now on, every useful function you could take from class in DataModifying/models/ModelRegistry.py
+  about functionality: class "ModelRegistry" has static method get() with params:
+      "genre" - identifies subgenre
+      "user_profile" - return statistics based on user profile
 
 Data Science:
-  I chose 9 basic genre (pop rock electronic hip_hop jazz
-                          metal classical rnb folk reggae ambient)
-  But due to similar patterns I mapped them into 5 (urban = pop + hip-hop + electronic
-                                                      acoustic = jazz + folk
-                                                      calm = classical + ambient
-                                                      rock
-                                                      reggae)
-  Furthermore, i log some features and clipped them.
+    I made multi-stage models with 4 macrogenre (vocal, energetic, calm, acoustic)
+    and subgenre inside them. here variable from DataModifying/models/config.py to understand more:
+      GROUPS = {
+        'vocal' : ["pop", "reggae", "rap", 'hip-hop'],
+        'energetic' : ["electronic", "rock"],
+        'calm' : ["ambient", "classical"],
+        'acoustic' : ["jazz", "folk"],
+        }
 
-ML:
-  PCA - explained 0.49: some noise with "energy" and "loudness"
-  model: RandomForest
-  mean accuracy: 0.83
+  Furthermore, I log some features and clipped them (by 0.25 and 0.75 percentile).
+  Due to specific of RandomForests (which i use the most), I refuse to make more preprocessing.
+
+
+Machine Learning:
+  PCA - some noise with "energy" and "loudness"
+  model: RandomForest. It fits excellent and don't require scaling. Perfect model for easy classification,
+         but need some experiments with boosting model in the future.
+  mean accuracy: 0.83 (vocal macrogenre has the least appropriate accuracy 0.63 due to similarity of subclasses)
+
+
+Future/Hypothesis:
+  I believe It has a lot of potential to vectorise features and make "reliable tracks" from other users in DB.
+  Although ML core fits perfectly, I would like to see Deep Learning model to make more complex analytics.
+
