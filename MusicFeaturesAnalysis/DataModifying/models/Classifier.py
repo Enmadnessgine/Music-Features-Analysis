@@ -5,6 +5,8 @@ from DataModifying.models.config import FEATURE_COLS, GROUPS
 from mainapp.models import AudioFile, Song
 from abc import ABC, abstractmethod
 import joblib
+from DataModifying.modules.preprocessing.genre_mapping import GENRE_TO_GROUP
+import math
 
 class BaseModel(ABC):
 
@@ -80,7 +82,7 @@ class UserGenreAggregator(BaseModel):
     def load(self):
         pass
 
-    def predict(self, user) -> list:
+    def predict(self, user) -> dict[str, int | float | list]:
         '''Takes ALL information about user from DB and works with prediction.
         Returns dictionary, which has root genres with their probabilities to appear in
         user account (basic mean) and with subgenre as a key and list as a value. The list has
@@ -89,49 +91,58 @@ class UserGenreAggregator(BaseModel):
         :return: list of dicts with special order, sorted by percentage of root genre
         :rtype list
         '''
-        songs = (
-            Song.objects
-            .filter(user=user)
-            .select_related("audio", "audio__features")
-        )
+        songs = Song.objects.filter(user=user).select_related('audio__features')
 
-        if not songs.exists():
+        if not songs:
             return {}
 
-        return self._predict_songs(songs)
+        subgenre_sum = defaultdict(int)
+        macrogenre_sum = defaultdict(int)
+        total_mood = 0
 
-    def _predict_songs(self, songs):
-        genre_sum = defaultdict(float)
-        sub_sum = defaultdict(float)
+        for s in songs:
+            f = s.audio.features
+            mood_raw = (0.4 * f.energy + 0.3  * f.valence + 0.2 *
+                    f.danceability - 0.1 * f.liveness)
+            total_mood += mood_raw + 0.1
 
-        for song in songs:
-            probs = self.genre_model.predict(song.audio.features)
-            for genre, p in probs.items():
-                genre_sum[genre] += p
-
-            macro = self.genre_model.predict_macro_genre(song.audio.features)
-            sub_model = ModelRegistry.get(macro)
-            leaf_probs = sub_model.predict(song.audio.features)
-
-            for s_genre, p in leaf_probs.items():
-                sub_sum[s_genre] += p
-
+            subgenre_sum[s.genre] += 1
+            group = GENRE_TO_GROUP.get(s.genre)
+            macrogenre_sum[group] += 1
 
 
         count = len(songs)
-        result = []
+        genres_statistics = []
+
         for macro, subs in GROUPS.items():
-            if genre_sum[macro] > 0:
-                result.append({
+            if macrogenre_sum[macro] > 0:
+                current_subgenres = {
+                    genre: round(count_val / count, 2)
+                    for genre, count_val in subgenre_sum.items()
+                    if GENRE_TO_GROUP.get(genre) == macro
+                }
+
+                genres_statistics.append({
                     "macro_genre": macro,
-                    "percentage": round(genre_sum[macro] / count, 2),
-                    "subgenres": [
-                        {sub: round(sub_sum[sub] / count, 2)
-                        for sub in subs if sub_sum[sub] > 0}
-                    ]
+                    "percentage": round(macrogenre_sum[macro] / count, 2),
+                    "subgenres": current_subgenres
                 })
 
-        return sorted(result, key=lambda x: x['percentage'], reverse=True)
 
+
+        all_p = [val / count for val in subgenre_sum.values()]
+        entropy = -sum(p * math.log2(p) for p in all_p if p > 0)
+        h_max = math.log2(len(all_p)) if len(all_p) > 1 else 1
+        diversity_score = round(entropy / h_max, 3)
+
+
+        return {
+            "count": count,
+            "genres": sorted(genres_statistics, key=lambda x: x["percentage"], reverse=True),
+            "top_macro_genre": genres_statistics[0]["macro_genre"] if genres_statistics else None,
+            "top_subgenre": max(subgenre_sum, key=subgenre_sum.get) if subgenre_sum else None,
+            "diversity_score": diversity_score,
+            "mood": round(total_mood / count, 3)
+        }
 
 

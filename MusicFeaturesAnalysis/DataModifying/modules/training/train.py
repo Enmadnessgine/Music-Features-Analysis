@@ -1,29 +1,38 @@
-import pandas as pd
+from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
-from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import FunctionTransformer
 from DataModifying.modules.preprocessing.genre_mapping import mapping
-from tuning import tune_random_forest
 from DataModifying.modules.preprocessing.clip import clip_outliers_iqr
-from DataModifying.modules.training.model import upload
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
 
 
-def create_X_y(path: str) -> tuple:
+def create_X_y(mapped=True, df: DataFrame = None) -> tuple:
     r""" creates X and y from feature path and mapping them
     (initially dropping 'genre' and 'genre_mapped' columns).
     :param path: feature path
     :return: X, y
     :rtype: tuple
     """
-    df = pd.read_csv(path)
-    mapping(df, path)
-    X = df.drop(['genre', 'genre_mapped', 'y'], axis=1)
-    y = df['y']
+    if df is not None:
+        pass
+    else:
+        df = pd.read_csv('DataModifying/data/features/features.csv')
+    df = df.drop_duplicates()
+    X = df.drop(['genre',  'key', 'mode'], axis=1)
+    clip_cols = ['tempo', 'speechiness', 'liveness']
+    X[clip_cols] = clip_outliers_iqr(X[clip_cols], clip_cols)
+
+    if mapped:
+        y = mapping(df)
+    else:
+        y = df['genre']
     return X, y
+
 
 def col_transformer(X):
     r""" Transforms data by specific way: log columns 'tempo', 'speechiness', 'liveness';
@@ -53,22 +62,21 @@ def col_transformer(X):
 
 
 
-def modeling_pipeline_rf(column_transformer: ColumnTransformer) -> Pipeline:
-    r""" Using the RandomForestClassifier with the best hypertuning for today.
+def modeling_pipeline(model) -> Pipeline:
+    r""" Using model and column transformer to make pipeline
     :return: Pipeline ready to fit
     :rtype: Pipeline
     """
-    rf = RandomForestClassifier()
 
     pipe = Pipeline([
-    ('Preprocessor', column_transformer),
-    ("rf", rf)
+        ("scaler", StandardScaler()),
+    ("model", model)
     ])
     return pipe
 
 
-def train_pipeline(pipeline: Pipeline, X, y) -> tuple:
-    """test_size = 0.2
+def train_pipeline(pipeline: Pipeline, X, y, tune=-1) -> tuple:
+    """Check tuning func in tuning.py
     :return: model, classification report, best params
     :rtype tuple"""
     X_train, X_test, y_train, y_test = train_test_split(
@@ -77,9 +85,13 @@ def train_pipeline(pipeline: Pipeline, X, y) -> tuple:
         stratify=y,
         random_state=42
     )
-
-    model, params = tune_random_forest(pipeline, X_train, y_train)
-
-    y_pred = model.predict(X_test)
-    report = classification_report(y_test, y_pred, output_dict=True)
-    return model, report, params
+    if tune != -1:
+        model, params = tune(pipeline, X_train, y_train)
+        y_pred = model.predict(X_test)
+        report = classification_report(y_test, y_pred, output_dict=True)
+        return model, report, params
+    else:
+        pipeline.fit(X_train, y_train)
+        y_pred = pipeline.predict(X_test)
+        report = classification_report(y_test, y_pred, output_dict=True)
+        return pipeline, report, -1, -1

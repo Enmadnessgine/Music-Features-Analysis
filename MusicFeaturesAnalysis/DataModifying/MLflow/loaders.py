@@ -1,0 +1,14 @@
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, ExtraTreesClassifier
+from sklearn.svm import SVC
+
+MODELS = {
+    "RandomForest": RandomForestClassifier,
+    "AdaBoost": AdaBoostClassifier,
+    "SVC": SVC,
+    "ETC": ExtraTreesClassifier
+}
+
+
+def build_model(model_name: str, params: dict):
+    cls = MODELS[model_name]
+    return cls(**params)

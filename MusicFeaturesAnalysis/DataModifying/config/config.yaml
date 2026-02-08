@@ -1,0 +1,29 @@
+genre:
+  model: RandomForest
+
+  params:
+    n_estimators: 1000
+    max_depth: 30
+    min_samples_split: 10
+    min_samples_leaf: 2
+    max_features: log2
+    class_weight: balanced
+  cv:
+    folds: 5
+    scoring: f1_macro
+#                                     DISABLE GRID TO WORK WITH PARAMS
+  grid:
+    #                                 for RandomForest
+    n_estimators: [ 200, 400 ]
+    max_depth: [20, 30 ]
+    min_samples_split: [ 5, 10 ]
+    min_samples_leaf: [2, 4 ]
+    max_features: [ "sqrt", "log2" ]
+
+
+subgenre:
+  model: AdaBoost
+
+  params:
+    n_estimators: 600
+    learning_rate: 1
