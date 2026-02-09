@@ -76,36 +76,53 @@ def load_ts(request):
 	)
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from mainapp.services.models_crud.crud import statistics_repo
+from mainapp.services.stats_client import user_stats
+
+
 @login_required
 def load_stats(request):
-	stats = user_stats.predict(user=request.user)
+    existing_stats_qs = statistics_repo.get_statistic(request.user)
 
-	total_songs = int(stats.get("count", 0))
-	top_subgenre = stats.get("top_subgenre", "") or ""
-	top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
-	rarest_subgenre = stats.get("rarest_subgenre", "") or ""
-	diversity_score = float(stats.get("diversity_score", 0) or 0)
-	mood = float(stats.get("mood", 0) or 0)
-	tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
+    if existing_stats_qs.exists():
+        statistic = existing_stats_qs.first()
+        created = False
+        stats = None
 
-	statistic, created = statistics_repo.create_or_update(
-		user=request.user,
-		total_songs=total_songs,
-		tog_genre=tog_genre,
-		rarest_genre=rarest_subgenre,
-		diversity_score=diversity_score,
-		mood_score=mood
-	)
+    else:
+        stats = user_stats.predict(user=request.user)
 
-	return render(
-		request,
-		"mainapp/stats.html",
-		{
-			"stats": stats,
-			"statistic": statistic,
-			"created": created,
-		},
-	)
+        total_songs = int(stats.get("count", 0))
+        top_subgenre = stats.get("top_subgenre", "") or ""
+        top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
+        rarest_subgenre = stats.get("rarest_subgenre", "") or ""
+        diversity_score = float(stats.get("diversity_score", 0) or 0)
+        mood = float(stats.get("mood", 0) or 0)
+
+        tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
+
+        statistic, created = statistics_repo.create_or_update(
+            user=request.user,
+            total_songs=total_songs,
+            tog_genre=tog_genre,
+            rarest_genre=rarest_subgenre,
+            diversity_score=diversity_score,
+            mood_score=mood
+        )
+
+    return render(
+        request,
+        "mainapp/stats.html",
+        {
+            "stats": stats,
+            "statistic": statistic,
+            "created": created,
+        },
+    )
+
 
 
 def load_analizer_info(request):
