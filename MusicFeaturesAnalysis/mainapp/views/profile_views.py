@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
+from requests import request
 from ..forms import AudioUploadForm
 from ..models import Song, SpotifyToken
 from ..utils.spotify_utils import save_top_tracks_with_features
@@ -10,12 +11,14 @@ from django.core.paginator import Paginator
 from mainapp.services.spotify_api.service import get_user_top_tracks
 from mainapp.services.spotify_api.utils import cache_tokens, get_access_token, get_refresh_token
 from DataModifying.models.Classifier import GenreClassifier
+from DataModifying.models.registry import ModelRegistry
 from ..services.model_db import ModelData
 from ..models import AudioFile, Features, Song
 from ..utils.info_utils import build_features_dict_
-from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo
+from mainapp.services.models_crud.crud import audio_repo, song_repo, features_repo, statistics_repo
 
 genremodel = GenreClassifier(model_path="DataModifying/models/artifacts/genre_classifier_v02.pkl")
+user_stats = ModelRegistry.get("user_profile")
 
 @login_required
 def profile(request):
@@ -71,7 +74,37 @@ def load_ts(request):
 		"mainapp/top_songs.html",
 		{"user": request.user, "tracks": tracks, "page_obj": page_obj},
 	)
-	
+
+
+@login_required
+def load_stats(request):
+    stats = user_stats.predict(user=request.user)
+
+    total_songs = int(stats.get("count", 0))
+    top_subgenre = stats.get("top_subgenre", "") or ""
+    top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
+    rarest_subgenre = stats.get("rarest_subgenre", "") or ""
+
+    tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
+
+    statistic, created = statistics_repo.create_or_update(
+        user=request.user,
+        total_songs=total_songs,
+        tog_genre=tog_genre,
+        rarest_genre=rarest_subgenre,
+    )
+
+    return render(
+        request,
+        "mainapp/stats.html",
+        {
+            "stats": stats,
+            "statistic": statistic,
+            "created": created,
+        },
+    )
+
+
 def load_analizer_info(request):
 	analizer_data = {}
 	tracks = song_repo.get_all(request.user)

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>User stats</h2>
+
+<pre>{{ stats }}</pre>
+{{ stats.total_songs }}
+{{ stats.rarest_genre }}
+{{ stats.most_common_genre_percent }}
+
+{% endblock %}
