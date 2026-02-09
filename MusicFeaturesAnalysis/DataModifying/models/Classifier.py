@@ -140,7 +140,10 @@ class UserGenreAggregator(BaseModel):
             "count": count,
             "genres": sorted(genres_statistics, key=lambda x: x["percentage"], reverse=True),
             "top_macro_genre": genres_statistics[0]["macro_genre"] if genres_statistics else None,
+            "top_macro_genre_percent": genres_statistics[0]["percentage"] if genres_statistics else None,
             "top_subgenre": max(subgenre_sum, key=subgenre_sum.get) if subgenre_sum else None,
+            "top_subgenre_percent": round(max(all_p), 2),
+            "rarest_subgenre": min(subgenre_sum, key=subgenre_sum.get) if subgenre_sum else None,
             "diversity_score": diversity_score,
             "mood": round(total_mood / count, 3)
         }
