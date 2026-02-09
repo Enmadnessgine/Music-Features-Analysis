@@ -78,31 +78,34 @@ def load_ts(request):
 
 @login_required
 def load_stats(request):
-    stats = user_stats.predict(user=request.user)
+	stats = user_stats.predict(user=request.user)
 
-    total_songs = int(stats.get("count", 0))
-    top_subgenre = stats.get("top_subgenre", "") or ""
-    top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
-    rarest_subgenre = stats.get("rarest_subgenre", "") or ""
+	total_songs = int(stats.get("count", 0))
+	top_subgenre = stats.get("top_subgenre", "") or ""
+	top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
+	rarest_subgenre = stats.get("rarest_subgenre", "") or ""
+	diversity_score = float(stats.get("diversity_score", 0) or 0)
+	mood = float(stats.get("mood", 0) or 0)
+	tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
 
-    tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
+	statistic, created = statistics_repo.create_or_update(
+		user=request.user,
+		total_songs=total_songs,
+		tog_genre=tog_genre,
+		rarest_genre=rarest_subgenre,
+		diversity_score=diversity_score,
+		mood_score=mood
+	)
 
-    statistic, created = statistics_repo.create_or_update(
-        user=request.user,
-        total_songs=total_songs,
-        tog_genre=tog_genre,
-        rarest_genre=rarest_subgenre,
-    )
-
-    return render(
-        request,
-        "mainapp/stats.html",
-        {
-            "stats": stats,
-            "statistic": statistic,
-            "created": created,
-        },
-    )
+	return render(
+		request,
+		"mainapp/stats.html",
+		{
+			"stats": stats,
+			"statistic": statistic,
+			"created": created,
+		},
+	)
 
 
 def load_analizer_info(request):

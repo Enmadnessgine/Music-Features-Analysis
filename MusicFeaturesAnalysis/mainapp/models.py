@@ -48,6 +48,8 @@ class Statistics(models.Model):
     total_songs = models.IntegerField(default=0)
     most_common_genre_percent = models.JSONField(default=dict) #ex: {"pop": 0.4}
     rarest_genre = models.CharField(max_length=50, default="")
+    diversity_score = models.FloatField(default=0.0)
+    mood_score = models.FloatField(default=0.0)
     updated_at = models.DateTimeField(auto_now=True)
 
 
