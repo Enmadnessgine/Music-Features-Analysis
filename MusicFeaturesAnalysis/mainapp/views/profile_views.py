@@ -100,7 +100,7 @@ def load_stats(request):
         statistic, created = statistics_repo.create_or_update(
             user=request.user,
             total_songs=total_songs,
-            most_common_genre_percent=most_common,
+            tog_genre=most_common,
             rarest_genre=rarest_genre,
             diversity_score=diversity_score,
             mood_score=mood_score,
