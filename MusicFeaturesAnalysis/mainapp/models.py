@@ -5,76 +5,76 @@ from .fields import EncryptedTextField
 
 
 class AudioFile(models.Model):
-    file = models.FileField(upload_to="audio/")
-    file_hash = models.CharField(max_length=64, unique=True)
-    size = models.BigIntegerField()
+	file = models.FileField(upload_to="audio/")
+	file_hash = models.CharField(max_length=64, unique=True)
+	size = models.BigIntegerField()
 
 
 class Song(models.Model):
-    track_id = models.TextField()
-    title = models.CharField(max_length=40, default="")
-    artist = models.CharField(max_length=40, default="")
-    audio = models.ForeignKey(
+	track_id = models.TextField()
+	title = models.CharField(max_length=40, default="")
+	artist = models.CharField(max_length=40, default="")
+	audio = models.ForeignKey(
 		AudioFile,
 		on_delete=models.PROTECT,
 		related_name="songs"
 	)
-    genre = models.CharField(max_length=60, default="")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="songs")
-    
-    class Meta:
-        unique_together = ('user', 'audio')
-    
+	genre = models.CharField(max_length=60, default="")
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="songs")
+	
+	class Meta:
+		unique_together = ('user', 'audio')
+	
 
 class Features(models.Model):
-    audio = models.OneToOneField(
+	audio = models.OneToOneField(
 		AudioFile,
 		on_delete=models.CASCADE,
 		related_name="features"
 	)
-    acousticness = models.FloatField()
-    danceability = models.FloatField()
-    energy = models.FloatField()
-    instrumentalness = models.FloatField()
-    liveness = models.FloatField()
-    loudness = models.FloatField()
-    speechiness = models.FloatField()
-    tempo = models.FloatField()
-    valence = models.FloatField()
+	acousticness = models.FloatField()
+	danceability = models.FloatField()
+	energy = models.FloatField()
+	instrumentalness = models.FloatField()
+	liveness = models.FloatField()
+	loudness = models.FloatField()
+	speechiness = models.FloatField()
+	tempo = models.FloatField()
+	valence = models.FloatField()
 
 
 class Statistics(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="statistics")
-    total_songs = models.IntegerField(default=0)
-    most_common_genre_percent = models.JSONField(default=dict) #ex: {"pop": 0.4}
-    rarest_genre = models.CharField(max_length=50, default="")
-    diversity_score = models.FloatField(default=0.0)
-    mood_score = models.FloatField(default=0.0)
-    updated_at = models.DateTimeField(auto_now=True)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="statistics")
+	total_songs = models.IntegerField(default=0)
+	most_common_genre_percent = models.JSONField(default={"N/A": 0.0}) #ex: {"pop": 0.4}
+	rarest_genre = models.CharField(max_length=50, default="N/A")
+	diversity_score = models.FloatField(default=0.0)
+	mood_score = models.FloatField(default=0.0)
+	updated_at = models.DateTimeField(auto_now=True)
 
 
 class SearchInfo(models.Model):
-    spotify_id = models.CharField(max_length=22)
-    reccobeats_id = models.CharField(max_length=128)
-    link = models.CharField(max_length=400)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searches")
-    
-    acousticness = models.FloatField()
-    danceability = models.FloatField()
-    energy = models.FloatField()
-    instrumentalness = models.FloatField()
-    liveness = models.FloatField()
-    loudness = models.FloatField()
-    speechiness = models.FloatField()
-    tempo = models.FloatField()
-    valence = models.FloatField()
-    
+	spotify_id = models.CharField(max_length=22)
+	reccobeats_id = models.CharField(max_length=128)
+	link = models.CharField(max_length=400)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searches")
+	
+	acousticness = models.FloatField()
+	danceability = models.FloatField()
+	energy = models.FloatField()
+	instrumentalness = models.FloatField()
+	liveness = models.FloatField()
+	loudness = models.FloatField()
+	speechiness = models.FloatField()
+	tempo = models.FloatField()
+	valence = models.FloatField()
+	
 
 class SpotifyToken(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    access_token = EncryptedTextField()
-    refresh_token = EncryptedTextField()
-    expires_at = models.DateTimeField()
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	access_token = EncryptedTextField()
+	refresh_token = EncryptedTextField()
+	expires_at = models.DateTimeField()
 
-    def is_expired(self):
-        return timezone.now() >= self.expires_at
+	def is_expired(self):
+		return timezone.now() >= self.expires_at
