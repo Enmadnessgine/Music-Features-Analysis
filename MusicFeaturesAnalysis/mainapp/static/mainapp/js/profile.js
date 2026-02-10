@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (const [key, value] of Object.entries(stats)) {
                     tableHTML += `
                         <tr>
-                            <td class="fw-bold text-end pe-3">${key}:</td>
+                            <td class="fw-bold text-center pe-3">${key}:</td>
                             <td>${value}</td>
                         </tr>
                     `;
