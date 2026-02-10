@@ -84,37 +84,44 @@ def load_stats(request):
         statistic = existing_stats_qs.first()
         created = False
         stats = None
-
+        most_common = statistic.most_common_genre_percent or {}
     else:
         stats = user_stats.predict(user=request.user)
 
         total_songs = int(stats.get("count", 0))
-        top_subgenre = stats.get("top_subgenre", "") or ""
-        top_subgenre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
-        rarest_subgenre = stats.get("rarest_subgenre", "") or ""
+        top_genre = stats.get("top_subgenre", "") or ""
+        top_genre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
+        rarest_genre = stats.get("rarest_subgenre", "") or ""
         diversity_score = float(stats.get("diversity_score", 0) or 0)
         mood_score = float(stats.get("mood", 0) or 0)
 
-        tog_genre = {top_subgenre: top_subgenre_percent} if top_subgenre else {}
+        most_common = {top_genre: top_genre_percent} if top_genre else {}
 
         statistic, created = statistics_repo.create_or_update(
             user=request.user,
             total_songs=total_songs,
-            tog_genre=tog_genre,
-            rarest_genre=rarest_subgenre,
+            most_common_genre_percent=most_common,
+            rarest_genre=rarest_genre,
             diversity_score=diversity_score,
             mood_score=mood_score,
         )
 
-    return render(
-        request,
-        "mainapp/stats.html",
-        {
-            "stats": stats,
-            "statistic": statistic,
-            "created": created,
-        },
-    )
+    top_genre = list(most_common.keys())[0] if most_common else "N/A"
+    top_genre_percent = list(most_common.values())[0] if most_common else 0
+
+    data = {
+        "status": 200,
+        "data": {
+            "Total Songs": getattr(statistic, "total_songs", 0),
+            "Top Genre": top_genre,
+            "Top Genre %": top_genre_percent,
+            "Rarest Genre": getattr(statistic, "rarest_genre", "N/A"),
+            "Diversity Score": getattr(statistic, "diversity_score", 0),
+            "Mood Score": getattr(statistic, "mood_score", 0),
+        }
+    }
+
+    return JsonResponse(data)
 
 
 def load_analizer_info(request):

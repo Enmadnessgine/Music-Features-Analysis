@@ -25,7 +25,6 @@ local_settings.py
 
 # === Static files ===
 staticfiles/
-static/
 
 # === Migrations (опційно, якщо не хочеш комітити) ===
 # */migrations/

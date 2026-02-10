@@ -1,119 +1,152 @@
-{% extends 'base.html' %} {% block content %}
-<div class="d-flex flex-wrap gap-3">
-  <div class="d-flex flex-column gap-3" style="min-width: 280px">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex gap-3">
+
+  <div class="d-flex flex-column gap-3" style="min-width: 300px;">
+
     <div class="bg-light border rounded p-3">
-      <h2 class="text-dark">User info</h2>
-      <p><strong>Username:</strong> {{ user.username }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-
-      {% if spotify_connected %}
-      <a href="{% url 'load_ts' %}" class="btn btn-success">
-        Load Top Tracks
-      </a>
-      {% else %}
-      <a href="{% url 'spotify_login' %}" class="btn btn-primary">
-        Connect Spotify
-      </a>
-      {% endif %}
-
-      {% if spotify_connected %}
-      <button id="predictBtn" class="btn btn-danger">See our predict</button>
-      {% else %}
-      <a href="{% url 'spotify_login' %}" class="btn btn-primary">
-        Connect Spotify
-      </a>
-      {% endif %}
+      <h2>User info</h2>
+      <h3><strong>Username:</strong> {{ user.username }}</h3>
+      <h3><strong>Email:</strong> {{ user.email }}</h3>
     </div>
+
+    {% if spotify_connected %}
+    <div class="bg-light border rounded p-3">
+      <div id="features-carousel" class="carousel carousel-dark slide" data-bs-ride="false">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="text-center p-3">
+              <h5>Load top songs</h5>
+              <a href="{% url 'load_ts' %}" class="btn btn-success">
+                Load Top Tracks
+              </a>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="text-center p-3">
+              <h5>See our predict</h5>
+              <button id="predictBtn" class="btn btn-danger">Get predict</button>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <div class="text-center p-3">
+              <h5>Load user stats</h5>
+              <button id="statBtn" class="btn btn-primary">Get stats</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="carousel-control-prev rounded-circle" type="button" data-bs-target="#features-carousel"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next rounded-circle" type="button" data-bs-target="#features-carousel"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+    {% else %}
+    <div class="bg-light border rounded p-3">
+      <form action="{% url 'spotify_login' %}" method="post">{% csrf_token %}
+        <button class="btn btn-primary">Connect Spotify</button>
+      </form>
+    </div>
+    {% endif %}
 
     <div class="bg-light border rounded p-3">
       <h2>Upload MP3</h2>
-      <form
-        action="{% url 'upload_audio' %}"
-        method="POST"
-        enctype="multipart/form-data"
-      >
-        {% csrf_token %} 
-		{{ form.fileToUpload }} 
-		{{ form.title }} 
-		{{ form.artist }}
+      <form action="{% url 'upload_audio' %}" method="POST" enctype="multipart/form-data" class="mt-2">{% csrf_token %}
+        {{ form.fileToUpload }}
+        {{ form.title }}
+        {{ form.artist }}
         <button type="submit" class="btn btn-primary mt-2">Upload</button>
       </form>
     </div>
+
   </div>
 
-  <div class="bg-light border rounded p-3 flex-grow-1">
-    {% if user_songs %}
-    <h2 class="mt-2">Your Songs:</h2>
-    <div class="list-group">
-      {% for song in user_songs %}
-      <div class="list-group-item mb-2">
-        <h5>{{ song.title }} — {{ song.artist }}</h5>
-        <p><strong>Track ID:</strong> {{ song.track_id }}</p>
-        <p><strong>File size:</strong> {{ song.audio.size }} bytes</p>
+  <div class="flex-grow-1">
+    <div class="bg-light border rounded p-3" style="margin-left: 1rem;">
+      <h2>Your Songs</h2>
+      {% if user_songs %}
+      <div id="songs-carousel" class="carousel carousel-dark slide" data-bs-ride="false">
+        <div class="carousel-inner" style="min-height: 200px; position: relative;">
+          {% for song in user_songs %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="list-group-item mb-2">
+              <h5>{{ song.title }} — {{ song.artist }}</h5>
+              {% if song.audio.features %}
+              <ul>
+                <li>Acousticness: {{ song.audio.features.acousticness }}</li>
+                <li>Danceability: {{ song.audio.features.danceability }}</li>
+                <li>Energy: {{ song.audio.features.energy }}</li>
+                <li>Instrumentalness: {{ song.audio.features.instrumentalness }}</li>
+                <li>Liveness: {{ song.audio.features.liveness }}</li>
+                <li>Loudness: {{ song.audio.features.loudness }}</li>
+                <li>Speechiness: {{ song.audio.features.speechiness }}</li>
+                <li>Tempo: {{ song.audio.features.tempo }}</li>
+                <li>Valence: {{ song.audio.features.valence }}</li>
+              </ul>
+              {% else %}
+              <p class="text-danger">Features not extracted yet.</p>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
 
-        {% if song.audio.features %}
-        <h6>Audio Features:</h6>
-        <ul>
-          <li>Acousticness: {{ song.audio.features.acousticness }}</li>
-          <li>Danceability: {{ song.audio.features.danceability }}</li>
-          <li>Energy: {{ song.audio.features.energy }}</li>
-          <li>Instrumentalness: {{ song.audio.features.instrumentalness }}</li>
-          <li>Liveness: {{ song.audio.features.liveness }}</li>
-          <li>Loudness: {{ song.audio.features.loudness }}</li>
-          <li>Speechiness: {{ song.audio.features.speechiness }}</li>
-          <li>Tempo: {{ song.audio.features.tempo }}</li>
-          <li>Valence: {{ song.audio.features.valence }}</li>
-        </ul>
-        {% else %}
-        <p class="text-danger">Features not extracted yet.</p>
-        {% endif %}
+        <div class="d-flex justify-content-between mt-2">
+          <button class="btn btn-outline-secondary" type="button" data-bs-target="#songs-carousel" data-bs-slide="prev">
+            Prev
+          </button>
+          <button class="btn btn-outline-secondary" type="button" data-bs-target="#songs-carousel" data-bs-slide="next">
+            Next
+          </button>
+        </div>
       </div>
-      {% endfor %}
+      {% else %}
+      <p class="mt-3">You have no uploaded songs yet.</p>
+      {% endif %}
     </div>
-    {% else %}
-    <p class="mt-3">You have no uploaded songs yet.</p>
-    {% endif %}
+
   </div>
+
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1">
+<div class="modal fade" id="predictModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Analyses of user listenings</h5>
+        <h5 class="modal-title">Analysis of user listening</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" id="modalBody">
-        Loading...
-      </div>
+      <div class="modal-body" id="predictModalBody">Loading...</div>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="statsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">User statistics</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="statsModalBody">Loading...</div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block script %}
+<script src="{% static 'mainapp/js/profile.js' %}"></script>
 <script>
-  document.getElementById("predictBtn").addEventListener("click", function() {
-    fetch("/load_analizer_info/", {
-      method: "GET",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("modalBody").textContent = 
-        data.status === 200 ? data.data : data.error;
-  
-      var modal = new bootstrap.Modal(document.getElementById('exampleModal'));
-      modal.show();
-    })
-    .catch(err => {
-      document.getElementById("modalBody").textContent = "Error fetching data!";
-      var modal = new bootstrap.Modal(document.getElementById('exampleModal'));
-      modal.show();
-    });
-  });
-  </script>
-{% endblock script %}
+  var featuresCarousel = new bootstrap.Carousel(document.getElementById('features-carousel'));
+  var songsCarousel = new bootstrap.Carousel(document.getElementById('songs-carousel'));
+</script>
+{% endblock %}
