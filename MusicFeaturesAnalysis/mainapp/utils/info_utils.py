@@ -79,3 +79,21 @@ def build_features_dict_(features: Features | None):
 		return {key: 0 for key in FEATURE_FIELDS}
 
 	return {key: getattr(features, key) for key in FEATURE_FIELDS}
+
+def build_stats(statistic, most_common: dict):
+	top_genre = list(most_common.keys())[0] if most_common else "N/A"
+	top_genre_percent = list(most_common.values())[0] if most_common else 0
+
+	data = {
+		"status": 200,
+		"data": {
+			"Total Songs": getattr(statistic, "total_songs", 0),
+			"Top Genre": top_genre,
+			"Top Genre %": top_genre_percent,
+			"Rarest Genre": getattr(statistic, "rarest_genre", "N/A"),
+			"Diversity Score": getattr(statistic, "diversity_score", 0),
+			"Mood Score": getattr(statistic, "mood_score", 0),
+		}
+	}
+	
+	return data
