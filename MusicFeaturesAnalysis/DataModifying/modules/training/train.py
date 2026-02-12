@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 
-def create_X_y(mapped=True, df: DataFrame = None) -> tuple:
+def create_X_y(mapped=False, df: DataFrame = None) -> tuple:
     r""" creates X and y from feature path and mapping them
     (initially dropping 'genre' and 'genre_mapped' columns).
     :param path: feature path
@@ -69,7 +69,7 @@ def modeling_pipeline(model) -> Pipeline:
     """
 
     pipe = Pipeline([
-        ("scaler", StandardScaler()),
+    ("scaler", StandardScaler()),
     ("model", model)
     ])
     return pipe

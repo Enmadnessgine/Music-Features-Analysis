@@ -7,26 +7,51 @@ from DataModifying.utils.config import CONFIG
 from DataModifying.MLflow.loaders import build_model
 from DataModifying.modules.training.train import modeling_pipeline, create_X_y
 from DataModifying.MLflow.registry_train import register
+import pandas as pd
+import sys
 
 ARTIFACT = Path("DataModifying/models/artifacts/genre.pkl")
 METRICS_PATH = Path("DataModifying/MLflow/metrics/genre_metrics.json")
 
 
+VOCAL = ["pop", "reggae", "rap", 'hip-hop']
+ENERGETIC = ["electronic", "rock"]
+CALM = ["ambient", "classical"]
+ACOUSTIC = ["jazz", "folk"]
+
 
 @register("genre")
-def run(grid: bool = False, save: bool = False):
+def run(grid: bool = False, save: bool = False, macrogenre: str = False):
+
 
     cfg = CONFIG["genre"]
 
-    X, y = create_X_y()
+    if macrogenre != 'False':
+        match macrogenre:
+            case 'vocal':
+                subgenre = VOCAL
 
-    model = build_model(cfg["model"], cfg["params"])
-    pipe = modeling_pipeline(model)
+            case 'energetic':
+                subgenre = ENERGETIC
+
+            case 'calm':
+                subgenre = CALM
+
+            case 'acoustic':
+                subgenre = ACOUSTIC
+            case _:
+                print('Incorrect input')
+                sys.exit()
+
+        df = pd.read_csv('DataModifying/Data/features/features.csv')
+        df = df[df["genre"].isin(subgenre)]
+        X, y = create_X_y(df=df)
+    else:
+        X, y = create_X_y(mapped=True)
 
     print("Training...")
 
     if grid:
-
         X_train, X_test, y_train, y_test = train_test_split(
             X, y,
             test_size=0.2,
@@ -36,6 +61,8 @@ def run(grid: bool = False, save: bool = False):
 
         param_grid = {f"model__{k}": v for k, v in cfg["grid"].items()}
 
+        model = build_model(cfg["model"])
+        pipe = modeling_pipeline(model)
         model = GridSearchCV(
             estimator=pipe,
             param_grid=param_grid,
@@ -56,7 +83,10 @@ def run(grid: bool = False, save: bool = False):
             print("\nSaving model...")
             dump(model, ARTIFACT)
             print("Saved to", ARTIFACT)
+
     else:
+        model = build_model(cfg["model"], cfg["params"])
+        pipe = modeling_pipeline(model)
         y_pred = cross_val_predict(
             pipe,
             X,

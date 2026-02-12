@@ -9,6 +9,9 @@ MODELS = {
 }
 
 
-def build_model(model_name: str, params: dict):
+def build_model(model_name: str, params: dict | None = None):
     cls = MODELS[model_name]
+
+    if params is None:
+        return cls()
     return cls(**params)

@@ -2,23 +2,10 @@ from collections import defaultdict
 import pandas as pd
 from DataModifying.models.ModelRegistry import ModelRegistry
 from DataModifying.models.config import FEATURE_COLS, GROUPS
-from mainapp.models import AudioFile, Song
-from abc import ABC, abstractmethod
+from mainapp.models import Song
 import joblib
 from DataModifying.modules.preprocessing.genre_mapping import GENRE_TO_GROUP
 import math
-
-class BaseModel(ABC):
-
-    @abstractmethod
-    def load(self):
-        """Завантаження artifacts"""
-        pass
-
-    @abstractmethod
-    def predict(self, data):
-        """Функція передбачення/початок ml"""
-        pass
 
 
 #for predict() method.
@@ -33,7 +20,7 @@ def return_top_genre(func):
 
     return wrapper
 
-class GenreClassifier(BaseModel):
+class GenreClassifier:
 
     def __init__(self, model_path: str):
         self.model_path = model_path
@@ -63,7 +50,7 @@ class GenreClassifier(BaseModel):
             c: float(p)
             for c, p in zip(classes, probs)
         }
-    
+
     @return_top_genre
     def predict_macro_genre(self, features) -> str:
         return self.predict(features)
@@ -74,14 +61,7 @@ class GenreClassifier(BaseModel):
         leaf = ModelRegistry.get(macro).predict(features)
         return leaf
 
-class UserGenreAggregator(BaseModel):
-
-    def __init__(self, genre_model: GenreClassifier):
-        self.genre_model = genre_model
-
-    def load(self):
-        pass
-
+class UserGenreAggregator:
     def predict(self, user) -> dict[str, int | float | list]:
         '''Takes ALL information about user from DB and works with prediction.
         Returns dictionary, which has root genres with their probabilities to appear in

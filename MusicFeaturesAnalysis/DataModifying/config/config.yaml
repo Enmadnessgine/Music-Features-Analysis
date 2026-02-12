@@ -1,5 +1,5 @@
 genre:
-  model: RandomForest
+  model: SVC
 
   params:
     n_estimators: 1000
@@ -14,12 +14,15 @@ genre:
 #                                     DISABLE GRID TO WORK WITH PARAMS
   grid:
     #                                 for RandomForest
-    n_estimators: [ 200, 400 ]
-    max_depth: [20, 30 ]
-    min_samples_split: [ 5, 10 ]
-    min_samples_leaf: [2, 4 ]
-    max_features: [ "sqrt", "log2" ]
-
+#    n_estimators: [ 200, 400 ]
+#    max_depth: [20, 30 ]
+#    min_samples_split: [ 5, 10 ]
+#    min_samples_leaf: [2, 4 ]
+#    max_features: [ "sqrt", "log2" ]
+    #                                     for SVC
+     C: [ 0.1, 1, 10, 100, 1000 ]
+     gamma: [ 1, 0.1, 0.01, 0.001, 0.0001 ]
+     kernel: [ 'rbf' ]
 
 subgenre:
   model: AdaBoost

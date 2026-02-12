@@ -11,7 +11,7 @@ calm_model = GenreClassifier("DataModifying/models/artifacts/Calm_v01.pkl")
 ModelRegistry.register("genre", macro_model)
 ModelRegistry.register(
     "user_profile",
-    UserGenreAggregator(macro_model)
+    UserGenreAggregator()
 )
 
 # Use only if you know what you do
