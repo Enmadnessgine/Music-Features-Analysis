@@ -47,11 +47,11 @@ class Statistics(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="statistics")
 	total_songs = models.IntegerField(default=0)
 	most_common_genre_percent = models.JSONField(default={"N/A": 0.0}) #ex: {"pop": 0.4}
+	all_genres_percent = models.JSONField(default={"N/A": 0.0}) #ex: {pop: 32, rock: 27, ...}
 	rarest_genre = models.CharField(max_length=50, default="N/A")
 	diversity_score = models.FloatField(default=0.0)
 	mood_score = models.FloatField(default=0.0)
 	updated_at = models.DateTimeField(auto_now=True)
-
 
 class SearchInfo(models.Model):
 	spotify_id = models.CharField(max_length=22)
