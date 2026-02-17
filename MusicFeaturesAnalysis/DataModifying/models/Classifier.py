@@ -62,6 +62,13 @@ class GenreClassifier:
         return leaf
 
 class UserGenreAggregator:
+    def mood_label(self, x):
+        if x < 0.3:
+            return "sad"
+        elif x < 0.6:
+            return "neutral"
+        return "happy"
+
     def predict(self, user) -> dict[str, int | float | list]:
         '''Takes ALL information about user from DB and works with prediction.
         Returns dictionary, which has root genres with their probabilities to appear in
@@ -114,7 +121,7 @@ class UserGenreAggregator:
         entropy = -sum(p * math.log2(p) for p in all_p if p > 0)
         h_max = math.log2(len(all_p)) if len(all_p) > 1 else 1
         diversity_score = round(entropy / h_max, 3)
-
+        mood = round(total_mood / count, 3)
 
         return {
             "count": count,
@@ -125,7 +132,12 @@ class UserGenreAggregator:
             "top_subgenre_percent": round(max(all_p), 2),
             "rarest_subgenre": min(subgenre_sum, key=subgenre_sum.get) if subgenre_sum else None,
             "diversity_score": diversity_score,
-            "mood": round(total_mood / count, 3)
+            "mood": mood,
+            "mood_labeled": self.mood_label(mood),
+            "all_subgenre_percent": {val: round(key / count, 2) for val, key in subgenre_sum.items()},
+            "all_macrogenre_percent": {val: round(key / count, 2) for val, key in macrogenre_sum.items() if key != 0}
+
         }
+
 
 
