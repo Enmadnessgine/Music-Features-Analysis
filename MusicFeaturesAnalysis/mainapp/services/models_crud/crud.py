@@ -87,13 +87,14 @@ class Statistics_(ModelData):
 	def __init__(self, model=Statistics):
 		super().__init__(model)
 	
-	def create_or_update(self, user, total_songs, tog_genre, rarest_genre, diversity_score, mood_score, all_genres_percent):
+	def create_or_update(self, user, total_songs, tog_genre, rarest_genre, diversity_score, mood_score, all_genres_percent, features_values_average):
 		statistic, created = self.update_or_create(
 			kwargs={
 				"user": user, 
 				"total_songs": total_songs,
 				"most_common_genre_percent": tog_genre,
 				"all_genres_percent": all_genres_percent,
+				"features_values_average": features_values_average,
 				"rarest_genre": rarest_genre,
 				"diversity_score": diversity_score,
 				"mood_score": mood_score,

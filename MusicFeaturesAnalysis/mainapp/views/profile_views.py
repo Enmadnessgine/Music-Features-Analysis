@@ -79,7 +79,8 @@ def load_stats(request):
         top_genre = stats.get("top_subgenre", "") or ""
         top_genre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
         rarest_genre = stats.get("rarest_subgenre", "") or ""
-        all_genres_percent = stats.get("all_subgenre_percent", 0) or ""
+        all_genres_percent = stats.get("all_subgenre_percent", 0) or 0
+        features_values_average = stats.get("mean_features", 0) or 0
         diversity_score = float(stats.get("diversity_score", 0) or 0)
         mood_score = float(stats.get("mood", 0) or 0)
 
@@ -91,6 +92,7 @@ def load_stats(request):
             tog_genre=most_common,
             rarest_genre=rarest_genre,
 			all_genres_percent=all_genres_percent,
+			features_values_average = features_values_average,
             diversity_score=diversity_score,
             mood_score=mood_score,
         )
