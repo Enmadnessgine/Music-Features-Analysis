@@ -1,55 +1,61 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block content %}
+{% extends "base.html" %} {% load static %} {% block content %}
 <h2 class="text-center mb-4">User statistics</h2>
 
 <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
-    <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px;">
-        <div>Total songs</div>
-        <div class="h4">{{ data.total_songs }}</div>
-    </div>
-    <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px;">
-        <div>Top genre</div>
-        <div class="d-flex flex-wrap justify-content-center">
-            <div class="h4">{{ data.top_genre }}</div>
-            <div>{{ data.top_genre_percent }}</div>
-        </div>
-    </div>
-    <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px;">
-        <div>Rarest genre</div>
-        <div class="h4">{{ data.rarest_genre }}</div>
-    </div>
+  <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px">
+    <div>Total songs</div>
+    <div class="h4">{{ data.total_songs }}</div>
+  </div>
+  <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px">
+    <div>Top genre</div>
+    <div class="h4">{{ data.top_genre }}</div>
+  </div>
+  <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px">
+    <div>Rarest genre</div>
+    <div class="h4">{{ data.rarest_genre }}</div>
+  </div>
 </div>
 
 <div class="card shadow p-3 mb-4">
-    <h3 class="mb-3">User profile scores</h3>
-    <div class="mb-3">
-        <label>Diversity</label>
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: {{ data.diversity_score }}%;" aria-valuenow="{{ data.diversity_score }}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
+  <h3 class="mb-3">User profile scores</h3>
+  <div class="mb-3">
+    <label>Diversity</label>
+    <div class="progress">
+      <div
+        class="progress-bar"
+        role="progressbar"
+        style="width: {{ data.diversity_score }}%;"
+        aria-valuenow="{{ data.diversity_score }}"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
     </div>
-    <div class="mb-3">
-        <label>Mood</label>
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: {{ data.mood_score }}%;" aria-valuenow="{{ data.mood_score }}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
+  </div>
+  <div class="mb-3">
+    <label>Mood</label>
+    <div class="progress">
+      <div
+        class="progress-bar"
+        role="progressbar"
+        style="width: {{ data.mood_score }}%;"
+        aria-valuenow="{{ data.mood_score }}"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
     </div>
+  </div>
 </div>
 
 <div class="d-flex flex-wrap gap-3">
-    <div class="card shadow p-4 flex-fill" style="min-width: 300px;">
-        <h5 class="mb-3">Genre Distribution</h5>
-        <canvas id="genreChart"></canvas>
-    </div>
-    <div class="card shadow p-4 flex-fill" style="min-width: 300px;">
-        <h5 class="mb-3">User Profile Radar</h5>
-        <canvas id="radarChart"></canvas>
-    </div>
+  <div class="card shadow p-4 flex-fill" style="min-width: 300px">
+    <h5 class="mb-3">Genre Distribution</h5>
+    <canvas id="genreChart"></canvas>
+  </div>
+  <div class="card shadow p-4 flex-fill" style="min-width: 300px">
+    <h5 class="mb-3">User Profile Radar</h5>
+    <canvas id="radarChart"></canvas>
+  </div>
 </div>
-{% endblock %}
-
-{% block script %}
+{% endblock %} {% block script %}
 <script src="{% static 'mainapp/js/stats.js' %}"></script>
 {% endblock %}
