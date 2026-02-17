@@ -85,7 +85,9 @@ class UserGenreAggregator:
 
         subgenre_sum = defaultdict(int)
         macrogenre_sum = defaultdict(int)
+        sum_features = defaultdict(float)
         total_mood = 0
+
 
         for s in songs:
             f = s.audio.features
@@ -96,6 +98,18 @@ class UserGenreAggregator:
             subgenre_sum[s.genre] += 1
             group = GENRE_TO_GROUP.get(s.genre)
             macrogenre_sum[group] += 1
+
+            sum_features['energy'] += f.energy
+            sum_features['acousticness'] += f.acousticness
+            sum_features['tempo'] += f.tempo
+            sum_features['danceability'] += f.danceability
+            sum_features['instrumentalness'] += f.instrumentalness
+            sum_features['loudness'] += f.loudness
+            sum_features['liveness'] += f.liveness
+            sum_features['speechiness'] += f.speechiness
+            sum_features['valence'] += f.valence
+
+
 
 
         count = len(songs)
@@ -135,8 +149,8 @@ class UserGenreAggregator:
             "mood": mood,
             "mood_labeled": self.mood_label(mood),
             "all_subgenre_percent": {val: round(key / count, 2) for val, key in subgenre_sum.items()},
-            "all_macrogenre_percent": {val: round(key / count, 2) for val, key in macrogenre_sum.items() if key != 0}
-
+            "all_macrogenre_percent": {val: round(key / count, 2) for val, key in macrogenre_sum.items() if key != 0},
+            "mean_features": {val: round(key / count, 2) for val, key in sum_features.items()}
         }
 
 
