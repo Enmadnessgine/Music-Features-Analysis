@@ -11,6 +11,8 @@
       rel="stylesheet"
     />
     <script src="https://kit.fontawesome.com/7def5782f3.js" crossorigin="anonymous"></script>
+    {% block style %}
+    {% endblock %}
   </head>
 
   <body class="d-flex flex-column min-vh-100">
@@ -35,14 +37,14 @@
           </a>
 
           <ul
-            class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
-          >
+            class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
             <li>
               <a href="{% url 'index' %}" class="nav-link px-2 text-white"
                 >Home</a
               >
             </li>
             <li><a href="{% url 'profile' %}" class="nav-link px-2 text-white">Profile</a></li>
+            <li><a href="{% url 'load_stats' %}" class="nav-link px-2 text-white">Statistics</a></li>
           </ul>
 
           <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get" action="{% url 'search' %}">

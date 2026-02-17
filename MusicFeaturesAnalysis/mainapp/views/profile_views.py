@@ -65,40 +65,53 @@ def load_ts(request):
 
 @login_required
 def load_stats(request):
-    existing_stats_qs = statistics_repo.get_statistic(request.user)
+	all_genres_percent = {}
+	features_values_average = {}
+	most_common = {}
 
-    if existing_stats_qs.exists():
-        statistic = existing_stats_qs.first()
-        created = False
-        stats = None
-        most_common = statistic.most_common_genre_percent or {}
-    else:
-        stats = user_stats.predict(user=request.user)
+	existing_stats_qs = statistics_repo.get_statistic(request.user)
 
-        total_songs = int(stats.get("count", 0))
-        top_genre = stats.get("top_subgenre", "") or ""
-        top_genre_percent = float(stats.get("top_subgenre_percent", 0) or 0)
-        rarest_genre = stats.get("rarest_subgenre", "") or ""
-        all_genres_percent = stats.get("all_subgenre_percent", 0) or 0
-        features_values_average = stats.get("mean_features", 0) or 0
-        diversity_score = float(stats.get("diversity_score", 0) or 0)
-        mood_score = float(stats.get("mood", 0) or 0)
+	if existing_stats_qs.exists():
+		statistic = existing_stats_qs.first()
+		most_common = statistic.most_common_genre_percent or {}
+		all_genres_percent = statistic.all_genres_percent or {}
+		features_values_average = statistic.features_values_average or {}
 
-        most_common = {top_genre: top_genre_percent} if top_genre else {}
+	else:
+		stats = user_stats.predict(user=request.user)
 
-        statistic, created = statistics_repo.create_or_update(
-            user=request.user,
-            total_songs=total_songs,
-            tog_genre=most_common,
-            rarest_genre=rarest_genre,
+		total_songs = int(stats.get("count", 0))
+		rarest_genre = stats.get("rarest_subgenre") or "N/A"
+		top_genre = stats.get("top_subgenre") or "N/A"
+		top_genre_percent = float(stats.get("top_subgenre_percent") or 0)
+
+		all_genres_percent = stats.get("all_subgenre_percent") or {}
+		features_values_average = stats.get("mean_features") or {}
+
+		diversity_score = float(stats.get("diversity_score", 0) or 0)
+		mood_score = float(stats.get("mood", 0) or 0)
+
+		most_common = {top_genre: top_genre_percent} if top_genre else {}
+
+		statistic, created = statistics_repo.create_or_update(
+			user=request.user,
+			total_songs=total_songs,
+			tog_genre=most_common,
+			rarest_genre=rarest_genre,
 			all_genres_percent=all_genres_percent,
-			features_values_average = features_values_average,
-            diversity_score=diversity_score,
-            mood_score=mood_score,
-        )
+			features_values_average=features_values_average,
+			diversity_score=diversity_score,
+			mood_score=mood_score,
+		)
 
-    data = build_stats(statistic, most_common)
-    return JsonResponse(data)
+	data = build_stats(
+		statistic,
+		most_common,
+		all_genres_percent,
+		features_values_average
+	)
+
+	return render(request, "mainapp/stats.html", context=data)
 
 
 def load_analizer_info(request):
