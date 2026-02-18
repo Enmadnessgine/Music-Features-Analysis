@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% load static %} {% block content %}
+{% extends "base.html" %} 
+{% load static %} 
+{% block content %}
 <h2 class="text-center mb-4">User statistics</h2>
 
 <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
@@ -14,6 +16,10 @@
     <div>Rarest genre</div>
     <div class="h4">{{ data.rarest_genre }}</div>
   </div>
+  <div class="card shadow p-3 text-center flex-fill" style="min-width: 180px">
+    <div>Diversity Score</div>
+    <div class="h4">{{ data.diversity_score }}%</div>
+  </div>
 </div>
 
 <div class="card shadow p-3 mb-4">
@@ -22,7 +28,7 @@
     <label>Diversity</label>
     <div class="progress">
       <div
-        class="progress-bar"
+        class="progress-bar bg-success"
         role="progressbar"
         style="width: {{ data.diversity_score }}%;"
         aria-valuenow="{{ data.diversity_score }}"
@@ -35,7 +41,7 @@
     <label>Mood</label>
     <div class="progress">
       <div
-        class="progress-bar"
+        class="progress-bar bg-primary"
         role="progressbar"
         style="width: {{ data.mood_score }}%;"
         aria-valuenow="{{ data.mood_score }}"
@@ -46,16 +52,25 @@
   </div>
 </div>
 
-<div class="d-flex flex-wrap gap-3">
-  <div class="card shadow p-4 flex-fill" style="min-width: 300px">
+<div class="d-flex flex-wrap gap-3 justify-content-between">
+  <div class="card shadow p-4 flex-fill" style="min-width: 300px; max-width: 500px;">
     <h5 class="mb-3">Genre Distribution</h5>
-    <canvas id="genreChart"></canvas>
+    <canvas id="genreChart" style="width:100%; height:400px;"></canvas>
   </div>
-  <div class="card shadow p-4 flex-fill" style="min-width: 300px">
+  <div class="card shadow p-4 flex-fill" style="min-width: 300px; max-width: 500px;">
     <h5 class="mb-3">User Profile Radar</h5>
-    <canvas id="radarChart"></canvas>
+    <canvas id="radarChart" style="width:100%; height:400px;"></canvas>
   </div>
 </div>
-{% endblock %} {% block script %}
+
+{% endblock %} 
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+	window.ChartData = {{ chart_data|safe }};
+	window.FeaturesData = {{ features_data|safe }};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'mainapp/js/stats.js' %}"></script>
 {% endblock %}

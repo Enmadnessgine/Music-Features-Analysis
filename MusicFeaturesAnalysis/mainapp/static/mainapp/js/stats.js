@@ -1,12 +1,9 @@
-const ChartData = JSON.parse("{{ chart_data|escapejs }}");
-const FeaturesData = JSON.parse("{{ features_data|escapejs }}");
-
 new Chart($("#genreChart"), {
 	type: "doughnut",
 	data: {
-		labels: ChartData.labels,
+		labels: window.ChartData.labels,
 		datasets: [{
-			data: ChartData.dataset,
+			data: window.ChartData.dataset,
 			backgroundColor: [
 				'#0d6efd',
 				'#6f42c1',
@@ -28,10 +25,10 @@ new Chart($("#genreChart"), {
 new Chart($("#radarChart"), {
 	type: "radar",
 	data: {
-		labels: FeaturesData.labels,
+		labels: window.FeaturesData.labels,
 		datasets: [{
 			label: "Features",
-			data: FeaturesData.dataset,
+			data: window.FeaturesData.dataset,
 			fill: true,
 			backgroundColor: 'rgba(13,110,253,0.2)',
 			borderColor: '#0d6efd',

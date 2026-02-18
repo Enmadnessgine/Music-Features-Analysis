@@ -89,7 +89,7 @@ class Statistics_(ModelData):
 	
 	def create_or_update(self, user, total_songs, tog_genre, rarest_genre, diversity_score, mood_score, all_genres_percent, features_values_average):
 		statistic, created = self.update_or_create(
-			user=user,
+			kwargs={"user": user},
 			defaults={ 
 				"total_songs": total_songs,
 				"most_common_genre_percent": tog_genre,
