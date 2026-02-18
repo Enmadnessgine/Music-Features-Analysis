@@ -69,40 +69,36 @@ def load_stats(request):
 	features_values_average = {}
 	most_common = {}
 
-	existing_stats_qs = statistics_repo.get_statistic(request.user)
-
+	"""existing_stats_qs = statistics_repo.get_statistic(request.user)
 	if existing_stats_qs.exists():
 		statistic = existing_stats_qs.first()
 		most_common = statistic.most_common_genre_percent or {}
 		all_genres_percent = statistic.all_genres_percent or {}
 		features_values_average = statistic.features_values_average or {}
 
-	else:
-		stats = user_stats.predict(user=request.user)
+	else:"""
+	stats = user_stats.predict(user=request.user)
 
-		total_songs = int(stats.get("count", 0))
-		rarest_genre = stats.get("rarest_subgenre") or "N/A"
-		top_genre = stats.get("top_subgenre") or "N/A"
-		top_genre_percent = float(stats.get("top_subgenre_percent") or 0)
-
-		all_genres_percent = stats.get("all_subgenre_percent") or {}
-		features_values_average = stats.get("mean_features") or {}
-
-		diversity_score = float(stats.get("diversity_score", 0) or 0)
-		mood_score = float(stats.get("mood", 0) or 0)
-
-		most_common = {top_genre: top_genre_percent} if top_genre else {}
-
-		statistic, created = statistics_repo.create_or_update(
-			user=request.user,
-			total_songs=total_songs,
-			tog_genre=most_common,
-			rarest_genre=rarest_genre,
-			all_genres_percent=all_genres_percent,
-			features_values_average=features_values_average,
-			diversity_score=diversity_score,
-			mood_score=mood_score,
-		)
+	total_songs = int(stats.get("count", 0))
+	rarest_genre = stats.get("rarest_subgenre") or "N/A"
+	top_genre = stats.get("top_subgenre") or "N/A"
+	top_genre_percent = float(stats.get("top_subgenre_percent") or 0)
+	all_genres_percent = stats.get("all_subgenre_percent") or {}
+	features_values_average = stats.get("mean_features") or {}
+	diversity_score = float(stats.get("diversity_score", 0) or 0)
+	mood_score = float(stats.get("mood", 0) or 0)
+	most_common = {top_genre: top_genre_percent} if top_genre else {}
+ 
+	statistic, created = statistics_repo.create_or_update(
+		user=request.user,
+		total_songs=total_songs,
+		tog_genre=most_common,
+		rarest_genre=rarest_genre,
+		all_genres_percent=all_genres_percent,
+		features_values_average=features_values_average,
+		diversity_score=diversity_score,
+		mood_score=mood_score,
+	)
 
 	data = build_stats(
 		statistic,
