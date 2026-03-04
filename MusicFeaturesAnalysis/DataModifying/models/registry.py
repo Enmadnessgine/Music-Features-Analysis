@@ -1,4 +1,4 @@
-from DataModifying.models.Classifier import GenreClassifier, UserGenreAggregator
+from DataModifying.models.Classifier import GenreClassifier, UserGenreAggregator, similarity
 from DataModifying.models.ModelRegistry import ModelRegistry
 
 macro_model = GenreClassifier("DataModifying/models/artifacts/genre_classifier_v02.pkl")
@@ -19,6 +19,7 @@ ModelRegistry.register("vocal", vocal_model)
 ModelRegistry.register("acoustic", acoustic_model)
 ModelRegistry.register("energetic", energetic_model)
 ModelRegistry.register("calm", calm_model)
+ModelRegistry.register("similarity", similarity)
 
 
 

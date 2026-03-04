@@ -1,14 +1,17 @@
 from collections import defaultdict
 import pandas as pd
 from DataModifying.models.ModelRegistry import ModelRegistry
-from DataModifying.models.config import FEATURE_COLS, GROUPS
-from mainapp.models import Song
+from DataModifying.models.config import FEATURE_COLS, GROUPS, VECTOR_FIELDS
+from mainapp.models import Song, Statistics
 import joblib
 from DataModifying.modules.preprocessing.genre_mapping import GENRE_TO_GROUP
 import math
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
 
 
-#for predict() method.
+# for predict() method.
 def return_top_genre(func):
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
@@ -19,6 +22,7 @@ def return_top_genre(func):
         return max(result, key=result.get)
 
     return wrapper
+
 
 class GenreClassifier:
 
@@ -61,13 +65,23 @@ class GenreClassifier:
         leaf = ModelRegistry.get(macro).predict(features)
         return leaf
 
+
 class UserGenreAggregator:
-    def mood_label(self, x):
+    def _mood_label(self, x):
         if x < 0.3:
             return "sad"
         elif x < 0.6:
             return "neutral"
         return "happy"
+
+    def _embedding(self, mean_features: list, mood: float, all_macrogenre_percent: dict, all_subgenre_percent: dict):
+        all_macrogenres_list = ['calm', 'vocal', 'acoustic', 'energetic']
+        all_subgenres_list = ["pop", "reggae", "rap", 'hip-hop', "electronic", "rock", "ambient", "classical", "jazz",
+                              "folk"]
+        macro_vector = [all_macrogenre_percent.get(g, 0.0) for g in all_macrogenres_list]
+        sub_vector = [all_subgenre_percent.get(g, 0.0) for g in all_subgenres_list]
+        user_vector = mean_features + macro_vector + sub_vector + [mood]
+        return user_vector
 
     def predict(self, user) -> dict[str, int | float | list]:
         '''Takes ALL information about user from DB and works with prediction.
@@ -88,11 +102,10 @@ class UserGenreAggregator:
         sum_features = defaultdict(float)
         total_mood = 0
 
-
         for s in songs:
             f = s.audio.features
-            mood_raw = (0.4 * f.energy + 0.3  * f.valence + 0.2 *
-                    f.danceability - 0.1 * f.liveness)
+            mood_raw = (0.4 * f.energy + 0.3 * f.valence + 0.2 *
+                        f.danceability - 0.1 * f.liveness)
             total_mood += mood_raw + 0.1
 
             subgenre_sum[s.genre] += 1
@@ -108,9 +121,6 @@ class UserGenreAggregator:
             sum_features['liveness'] += f.liveness
             sum_features['speechiness'] += f.speechiness
             sum_features['valence'] += f.valence
-
-
-
 
         count = len(songs)
         genres_statistics = []
@@ -129,13 +139,17 @@ class UserGenreAggregator:
                     "subgenres": current_subgenres
                 })
 
-
-
         all_p = [val / count for val in subgenre_sum.values()]
         entropy = -sum(p * math.log2(p) for p in all_p if p > 0)
         h_max = math.log2(len(all_p)) if len(all_p) > 1 else 1
         diversity_score = round(entropy / h_max, 3)
         mood = round(total_mood / count, 3)
+
+        mean_features = {val: round(key / count, 2) for val, key in sum_features.items()}
+
+        all_subgenre_percent = {val: round(key / count, 2) for val, key in subgenre_sum.items()}
+        all_macrogenre_percent = {val: round(key / count, 2) for val, key in macrogenre_sum.items() if key != 0}
+        emb = self._embedding(list(mean_features.values()), mood, all_macrogenre_percent, all_subgenre_percent)
 
         return {
             "count": count,
@@ -147,11 +161,35 @@ class UserGenreAggregator:
             "rarest_subgenre": min(subgenre_sum, key=subgenre_sum.get) if subgenre_sum else None,
             "diversity_score": diversity_score,
             "mood": mood,
-            "mood_labeled": self.mood_label(mood),
-            "all_subgenre_percent": {val: round(key / count, 2) for val, key in subgenre_sum.items()},
-            "all_macrogenre_percent": {val: round(key / count, 2) for val, key in macrogenre_sum.items() if key != 0},
-            "mean_features": {val: round(key / count, 2) for val, key in sum_features.items()}
+            "mood_labeled": self._mood_label(mood),
+            "all_subgenre_percent": all_subgenre_percent,
+            "all_macrogenre_percent": all_macrogenre_percent,
+            "mean_features": mean_features,
+            "user_vector": np.array(emb, dtype=float)
         }
 
 
+def similarity(user, user_similarity=False):
+    user_vector_raw = Statistics.objects.filter(user=user).values_list('user_vector', flat=True).first()
 
+    if not user_vector_raw:
+        return [], []
+
+    user_vec = np.array(user_vector_raw)
+
+    if user_similarity:
+        data = Statistics.objects.exclude(user=user).values_list('user_id', 'user_vector')
+    else:
+        data = Song.objects.values_list('id', *VECTOR_FIELDS)
+
+    ids = [item[0] for item in data]
+    all_vectors = np.array([item[1] if user_similarity else item[1:] for item in data])
+
+    scaler = StandardScaler()
+    all_vectors_scaled = scaler.fit_transform(all_vectors)
+    user_vec_scaled = scaler.transform(user_vec.reshape(1, -1))
+
+    sim = cosine_similarity(user_vec_scaled, all_vectors_scaled)
+    top_idx = sim.argsort()[0][-5:][::-1]
+    top_ids = [ids[i] for i in top_idx]
+    return top_ids
