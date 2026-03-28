@@ -69,7 +69,7 @@ ML Outputs:
 
 ### 7. Data Storage & Architecture
 -	PostgreSQL scheme: 
-![Diagram Tables of DataBase](/postgres_tables_scheme.png)
+![Diagram Tables of DataBase](assets\images_readme\postgres_tables_scheme.png)
 -	Redis for caching API responses
 
 ### 9. Interactive Dashboard
@@ -79,7 +79,7 @@ ML Outputs:
 -	Playlist insights
 
 ### 10. Data processing Pipeline
-![Scheme of pipeline](/Data_processing_pipeline_flowchart.png)
+![Scheme of pipeline](assets\images_readme\Data_processing_pipeline_flowchart.png)
 
 ---
 
@@ -173,8 +173,11 @@ Endpoints used:
 
 ## 🖼️ Screenshots
 
-screenshots/dashboard.png  
-screenshots/login.png  
+![Scheme of pipeline](assets\images_readme\main_page.png)
+![Scheme of pipeline](assets\images_readme\profile.png)
+![Scheme of pipeline](assets\images_readme\statistics_profile.png)
+![Scheme of pipeline](assets\images_readme\stats_mini.png)
+![Scheme of pipeline](assets\images_readme\top_tracks.png)
 
 ---
 
@@ -205,6 +208,6 @@ python manage.py runserver
 
 ## 👤 Authors
 
-https://github.com/Enmadnessgine
-https://github.com/HoleGod
-https://github.com/MaksymMaryniuk
+- https://github.com/Enmadnessgine
+- https://github.com/HoleGod
+- https://github.com/MaksymMaryniuk
