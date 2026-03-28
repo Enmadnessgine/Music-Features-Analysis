@@ -1,84 +1,210 @@
-# Music Features Analyzer
+# 🎧 Music Features Analysis  
+---
 
-## About the project
+## About
 
-**Music Features Analyzer** is a backend Django application with integrated machine learning for audio data analysis and model training. It allows you to extract information about songs, detect genres, and analyze your music profile based on your Spotify top tracks.
+Music Features Analysis is a web application that analyzes Spotify listening data and uploaded audio files to generate detailed music insights. It integrates Spotify and Reccobeats APIs to extract track features, applies machine learning for genre and mood detection, and provides users with advanced analytics such as taste profiles, playlist diversity, and listening patterns.
 
-## Architecture
+---
 
-The project consists of:
+## Key Features
 
-* Django backend API
-* Machine learning module for audio analysis
-* PostgreSQL database
-* Docker containerized environment
+### 1. Authentication & User Management
+- User registration and login system
+- Secure authentication via Spotify OAuth 2.0
+- Persistent user sessions
+- Token storage and refresh handling
 
-## Tech stack
+### 2. Spotify Profile Integration
+- Fetching user data from Spotify API:
+    - Profile information,
+    - Top tracks,
+    - Listening history
+- Automatic synchronization with user account
+- Handling API pagination and rate limits
 
-### Languages
+### 3. Audio Data Ingestion
+-	Upload and analysis of local MP3 files 
+-	Import of tracks from Spotify profile 
+-	Unified pipeline for processing both sources 
 
-* Python (backend and machine learning)
-* JavaScript (UI/UX functionality)
 
-### Technologies
+### 4. Multi-API Integration
+-	Spotify API → track metadata 
+-	Reccobeats API → audio features extraction (Example audio features):
+  ````
+  {
+    "acousticness": 0,
+    "danceability": 0,
+    "energy": 0,
+    "instrumentalness": 0,
+    "liveness": 0,
+    "loudness": 0,
+    "speechiness": 0,
+    "tempo": 0,
+    "valence": 0
+  }
+  ````
+---
+### 5. Machine Learning Pipeline
+-	Feature-based analysis of tracks 
+-	Genre classification 
+-	Mood detection 
+-	Aggregation of user listening features/genres 
 
-* Docker (Dockerfile, docker-compose.yml)
-* HTML/CSS (user interface)
+ML Outputs:
+-	track genre 
+-	track mood 
+-	user playlist diversity
 
-## Features
+### 6. Advanced Music Analytics
+- User-level insights:
+    - Taste profile (average features)
+    - Dominant genres
+    - Listening preferences 
+- Playlist-level analytics:
+  - Playlist diversity
+  - Mood distribution
+  - Feature distribution (energy, valence, etc.) 
 
-* Audio feature extraction from music files
-* Fetching user's top tracks from Spotify
-* Spotify data analysis (returns your dominant genre)
-* Statistics dashboard
-* Live search (AJAX)
+### 7. Data Storage & Architecture
+-	PostgreSQL scheme: 
+![Diagram Tables of DataBase](/postgres_tables_scheme.png)
+-	Redis for caching API responses
 
-## How to use
+### 9. Interactive Dashboard
+-	User profile overview 
+-	Track analytics visualization 
+-	Taste profile display 
+-	Playlist insights
 
-1. Register and log in
-2. Go to your profile page
-3. Connect your Spotify account
-4. Use one of the available features
+### 10. Data processing Pipeline
+![Scheme of pipeline](/Data_processing_pipeline_flowchart.png)
 
-## List of features
+---
 
-### Without Spotify
+## 🧩 Tech Stack
 
-1. Audio feature extraction
+- Python, Django
+- PostgreSQL, redis
+- Spotify Web API
+- Spotipy / requests
+- dotenv
+- cryptography
+- pandas
+- numpy
+- HTML, CSS
+- Bootstrap
+- JavaScript
 
-### With Spotify
+---
 
-1. Load top tracks (render a page with all found tracks)
-2. View genre prediction (returns your top genre)
-3. Load user statistics
+## 📁 Project Structure
+```
+Music-Features-Analysis/
+│
+├── manage.py
+├── config/
+├── mainapp/
+│   │
+│   ├── views/
+│   ├── services/
+│   ├── utils/
+│   ├── templates/
+│   │   └── mainapp/
+│   ├── static/
+│   └── migrations/
+│
+├── media/
+│   └── audio/
+│
+└── PostgreSQL
+```
 
-> [!IMPORTANT]
-> You cannot add two identical songs to your profile unless they are different files.
+---
 
-## Example usage
+## Spotify API Integration
 
-### Feature carousel
+Endpoints used:
+- /v1/me
+- /v1/me/top/tracks
+- /v1/me/player/recently-played
 
-<!-- ![Feature carousel](docs/gifs/carousel.gif) -->
+## 🔑 Scopes Spotify API
+```
+SPOTIFY_SCOPES = [
+    "user-read-email",
+    "user-read-private",
+    "user-top-read",
+    "playlist-modify-public",
+    "playlist-modify-private",
+]
+```
 
-### Audio upload
+---
 
-<!-- ![Audio upload](docs/gifs/upload.gif) -->
+## ReccoBeatsAPI Integration
 
-### Review audio features
+Endpoints used:
+- /v1
+- track/{song_id}/audio-features
+- v1/track?ids={id}
 
-<!-- ![Review audio features](docs/gifs/review.gif) -->
+---
 
-### Live search
+## 📡 Endpoints
+```
+/
+/signin/
+/login/
+/logout/
+/upload/
+/search/
+/search_ajax/
+/profile/
+/profile/top_songs/
+/profile/stats/
+/login/spotify/
+/callback/spotify/
+/load_analizer_info/
+```
 
-<!-- ![Live search](docs/gifs/live-search.gif) -->
+---
 
-## License
+## 🖼️ Screenshots
 
-This project is licensed under the MIT License.
+screenshots/dashboard.png  
+screenshots/login.png  
 
-## Future improvements
+---
 
-* Improve genre prediction accuracy
-* Add a recommendation system
-* Expand the analytics dashboard
+## ⚙️ Installation
+
+```bash
+git clone https://github.com/Enmadnessgine/Music-Features-Analysis
+cd Music-Features-Analysis
+python -m venv env
+env\Scripts\activate
+pip install -r requirements.txt
+```
+
+Create .env:
+
+SPOTIFY_CLIENT_ID=your_id  
+SPOTIFY_CLIENT_SECRET=your_secret  
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8000/callback/spotify/  
+
+Run:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+---
+
+## 👤 Authors
+
+https://github.com/Enmadnessgine
+https://github.com/HoleGod
+https://github.com/MaksymMaryniuk
